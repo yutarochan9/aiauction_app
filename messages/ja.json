@@ -1,0 +1,71 @@
+{
+  "nav": {
+    "home": "ホーム",
+    "sell": "出品する",
+    "dashboard": "マイページ",
+    "login": "ログイン",
+    "logout": "ログアウト"
+  },
+  "home": {
+    "title": "AIアート オークション",
+    "subtitle": "AIで生成したアート作品を売買できるマーケットプレイス",
+    "sortNew": "新着順",
+    "sortEndingSoon": "終了間近",
+    "sortPrice": "価格順",
+    "noArtworks": "現在出品中の作品はありません"
+  },
+  "auction": {
+    "currentPrice": "現在の入札額",
+    "startingPrice": "開始価格",
+    "timeLeft": "残り時間",
+    "bidCount": "入札数",
+    "placeBid": "入札する",
+    "bidAmount": "入札金額",
+    "bidHistory": "入札履歴",
+    "ended": "オークション終了",
+    "sold": "落札済み",
+    "protectedNotice": "この作品は購入者固有IDで保護されています",
+    "noBids": "まだ入札がありません",
+    "yourBid": "あなたの入札"
+  },
+  "sell": {
+    "title": "作品を出品する",
+    "titleJa": "タイトル（日本語）",
+    "titleEn": "タイトル（英語）",
+    "descJa": "説明文（日本語）",
+    "descEn": "説明文（英語）",
+    "image": "作品画像",
+    "imageHint": "JPG・PNG・WebP対応、最大10MB",
+    "startingPrice": "開始価格（USD）",
+    "duration": "オークション期間",
+    "duration1h": "1時間",
+    "duration6h": "6時間",
+    "duration24h": "24時間",
+    "duration3d": "3日間",
+    "duration7d": "7日間",
+    "agreeCheck": "この作品は他サービスで公開済みではなく、私が作成したAIアート作品であることに同意します",
+    "submit": "出品する",
+    "submitting": "出品中..."
+  },
+  "profile": {
+    "snsVerified": "SNS認証済み",
+    "snsVerifyButton": "SNS認証する",
+    "snsVerifyBadgeNote": "このバッジはSNSアカウントとの本人確認が取れていることを示します。作品の品質や出品者の評判を保証するものではありません。",
+    "listings": "出品履歴",
+    "bids": "入札履歴",
+    "stats": "実績",
+    "comment": "一言コメント"
+  },
+  "dashboard": {
+    "title": "マイページ",
+    "myListings": "出品中の作品",
+    "myBids": "参加中のオークション",
+    "myPurchases": "落札済み作品"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "error": "エラーが発生しました",
+    "back": "戻る",
+    "usd": "USD"
+  }
+}

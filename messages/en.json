@@ -1,0 +1,71 @@
+{
+  "nav": {
+    "home": "Home",
+    "sell": "Sell",
+    "dashboard": "Dashboard",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "home": {
+    "title": "AI Art Auction",
+    "subtitle": "A marketplace to buy and sell AI-generated artwork",
+    "sortNew": "Newest",
+    "sortEndingSoon": "Ending Soon",
+    "sortPrice": "Price",
+    "noArtworks": "No artworks listed yet"
+  },
+  "auction": {
+    "currentPrice": "Current Bid",
+    "startingPrice": "Starting Price",
+    "timeLeft": "Time Left",
+    "bidCount": "Bids",
+    "placeBid": "Place Bid",
+    "bidAmount": "Bid Amount",
+    "bidHistory": "Bid History",
+    "ended": "Auction Ended",
+    "sold": "Sold",
+    "protectedNotice": "This artwork is protected with a unique buyer ID",
+    "noBids": "No bids yet",
+    "yourBid": "Your bid"
+  },
+  "sell": {
+    "title": "List Your Artwork",
+    "titleJa": "Title (Japanese)",
+    "titleEn": "Title (English)",
+    "descJa": "Description (Japanese)",
+    "descEn": "Description (English)",
+    "image": "Artwork Image",
+    "imageHint": "JPG, PNG, WebP supported, max 10MB",
+    "startingPrice": "Starting Price (USD)",
+    "duration": "Auction Duration",
+    "duration1h": "1 hour",
+    "duration6h": "6 hours",
+    "duration24h": "24 hours",
+    "duration3d": "3 days",
+    "duration7d": "7 days",
+    "agreeCheck": "I agree that this artwork is not published on other services and is an AI-generated work I created",
+    "submit": "List Artwork",
+    "submitting": "Listing..."
+  },
+  "profile": {
+    "snsVerified": "SNS Verified",
+    "snsVerifyButton": "Verify SNS",
+    "snsVerifyBadgeNote": "This badge confirms that the seller's identity has been verified via their SNS account. It does not guarantee the quality of artwork or the seller's reputation.",
+    "listings": "Listings",
+    "bids": "Bid History",
+    "stats": "Stats",
+    "comment": "Bio"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "myListings": "My Listings",
+    "myBids": "Active Bids",
+    "myPurchases": "Purchases"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "back": "Back",
+    "usd": "USD"
+  }
+}

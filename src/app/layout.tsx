@@ -1,0 +1,35 @@
+import type { Metadata } from 'next'
+import { Geist } from 'next/font/google'
+import './globals.css'
+import { NextIntlClientProvider } from 'next-intl'
+import { getLocale, getMessages } from 'next-intl/server'
+import Navbar from '@/components/Navbar'
+
+const geist = Geist({ subsets: ['latin'] })
+
+export const metadata: Metadata = {
+  title: 'AI Art Auction',
+  description: 'AI-generated art auction marketplace',
+}
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const locale = await getLocale()
+  const messages = await getMessages()
+
+  return (
+    <html lang={locale} className="dark">
+      <body className={`${geist.className} bg-gray-950 text-gray-100 min-h-screen`}>
+        <NextIntlClientProvider messages={messages}>
+          <Navbar />
+          <main className="max-w-7xl mx-auto px-4 py-8">
+            {children}
+          </main>
+        </NextIntlClientProvider>
+      </body>
+    </html>
+  )
+}

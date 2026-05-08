@@ -1,0 +1,103 @@
+import { createClient } from '@/lib/supabase/server'
+import { getTranslations, getLocale } from 'next-intl/server'
+import { notFound } from 'next/navigation'
+import BidSection from './BidSection'
+import Link from 'next/link'
+
+export default async function AuctionPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const t = await getTranslations('auction')
+  const locale = await getLocale()
+  const supabase = await createClient()
+
+  // 作品情報取得
+  const { data: artwork } = await supabase
+    .from('artworks')
+    .select('*, users(display_name, avatar_url, sns_verified, sns_url)')
+    .eq('id', id)
+    .single()
+
+  if (!artwork) notFound()
+
+  // 入札履歴取得（新しい順）
+  const { data: bids } = await supabase
+    .from('bids')
+    .select('*, users(display_name, avatar_url)')
+    .eq('artwork_id', id)
+    .order('amount', { ascending: false })
+    .limit(20)
+
+  // ログイン中のユーザー
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const title = locale === 'ja' ? artwork.title_ja : artwork.title_en
+  const description = locale === 'ja' ? artwork.description_ja : artwork.description_en
+  const seller = artwork.users as any
+  const isEnded = artwork.status !== 'active'
+
+  return (
+    <div className="max-w-5xl mx-auto">
+      <Link href="/" className="text-gray-400 hover:text-white text-sm mb-6 inline-block">
+        ← 一覧に戻る
+      </Link>
+
+      <div className="grid md:grid-cols-2 gap-10">
+        {/* 左：画像 */}
+        <div>
+          <div
+            className="rounded-2xl overflow-hidden bg-gray-900 border border-gray-800"
+          >
+            {artwork.image_url ? (
+              <img
+                src={artwork.image_url}
+                alt={title}
+                className="w-full object-contain pointer-events-none select-none"
+                draggable={false}
+              />
+            ) : (
+              <div className="aspect-square flex items-center justify-center text-gray-600">No Image</div>
+            )}
+          </div>
+          {/* 保護の案内 */}
+          <p className="text-xs text-gray-600 mt-3 text-center">{t('protectedNotice')}</p>
+        </div>
+
+        {/* 右：情報・入札 */}
+        <div className="space-y-6">
+          {/* 出品者 */}
+          <div className="flex items-center gap-3">
+            {seller?.avatar_url ? (
+              <img src={seller.avatar_url} alt="" className="w-10 h-10 rounded-full" />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold">
+                {seller?.display_name?.[0] ?? '?'}
+              </div>
+            )}
+            <div>
+              <Link href={`/profile/${artwork.user_id}`} className="font-medium text-white hover:text-violet-400">
+                {seller?.display_name ?? 'Unknown'}
+              </Link>
+              {seller?.sns_verified && (
+                <span className="ml-2 text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">✓ SNS認証済み</span>
+              )}
+            </div>
+          </div>
+
+          {/* タイトル */}
+          <h1 className="text-2xl font-bold text-white">{title}</h1>
+
+          {description && (
+            <p className="text-gray-400 leading-relaxed">{description}</p>
+          )}
+
+          {/* 入札セクション（クライアントコンポーネント） */}
+          <BidSection
+            artwork={artwork as any}
+            bids={(bids ?? []) as any}
+            currentUser={user}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
