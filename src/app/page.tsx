@@ -41,9 +41,10 @@ export default async function HomePage({
     <div>
       {/* ヒーローセクション */}
       <div className="text-center py-12 mb-10">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
           {t('title')}
         </h1>
+        <p className="text-xs tracking-[0.4em] text-[#B8902A] uppercase mb-4">AI Art Auction</p>
         <p className="text-gray-400 text-lg mb-8">{t('subtitle')}</p>
         <Link
           href="/sell"
