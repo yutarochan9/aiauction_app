@@ -71,7 +71,7 @@ export default async function DashboardPage() {
                     <div className="p-3">
                       <p className="text-xs text-gray-900 truncate">{title}</p>
                       <span className={`text-xs mt-1 inline-block px-2 py-0.5 rounded-full ${
-                        a.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
+                        a.status === 'active' ? 'bg-[#F0F7F0] text-[#3D7A4D]' :
                         a.status === 'sold' ? 'bg-[#FBF6EC] text-[#B8902A]' :
                         'bg-stone-100 text-stone-500'
                       }`}>
@@ -111,7 +111,7 @@ export default async function DashboardPage() {
                     </p>
                   </div>
                   <span className={`text-xs px-2 py-1 rounded-full ${
-                    artwork.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-500'
+                    artwork.status === 'active' ? 'bg-[#F0F7F0] text-[#3D7A4D]' : 'bg-stone-100 text-stone-500'
                   }`}>
                     {artwork.status === 'active' ? '進行中' : '終了'}
                   </span>

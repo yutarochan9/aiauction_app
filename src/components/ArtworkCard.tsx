@@ -74,21 +74,21 @@ export default function ArtworkCard({ artwork, locale }: { artwork: Artwork; loc
         {/* 情報 */}
         <div className="p-4">
           <h3 className="font-semibold text-gray-900 truncate mb-3">{title}</h3>
-          <div className="flex justify-between items-end">
-            <div>
-              <p className="text-xs text-gray-400 mb-1">{t('currentPrice')}</p>
-              <p className="text-lg font-bold text-[#B8902A]">
-                ${artwork.current_price.toLocaleString()}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-gray-400">{t('timeLeft')}</p>
-              <p className={`text-sm font-medium ${isEnded ? 'text-gray-400' : 'text-[#B8902A]'}`}>
-                {isEnded ? (artwork.status === 'sold' ? t('sold') : t('ended')) : timeLeft}
-              </p>
-              <p className="text-xs text-gray-300 mt-1">{bidCount} {t('bidCount')}</p>
-            </div>
-          </div>
+          <p className="text-lg font-bold text-[#B8902A] mb-1">
+            ${artwork.current_price.toLocaleString()}
+          </p>
+          <p className="text-xs text-gray-400 mb-3">
+            {bidCount} {t('bidCount')} · {isEnded ? (artwork.status === 'sold' ? t('sold') : t('ended')) : timeLeft}
+          </p>
+          <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+            artwork.status === 'active'
+              ? 'bg-[#F0F7F0] text-[#3D7A4D]'
+              : artwork.status === 'sold'
+              ? 'bg-[#FBF6EC] text-[#B8902A]'
+              : 'bg-stone-100 text-stone-500'
+          }`}>
+            {artwork.status === 'active' ? '出品中' : artwork.status === 'sold' ? '落札済み' : '終了'}
+          </span>
         </div>
       </div>
     </Link>
