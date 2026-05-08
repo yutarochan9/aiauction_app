@@ -44,7 +44,7 @@ export default async function HomePage({
         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
           {t('title')}
         </h1>
-        <p className="text-xs tracking-[0.4em] text-[#B8902A] uppercase mb-4">AI Art Auction</p>
+        <p className="text-sm tracking-[0.35em] text-[#B8902A] uppercase font-semibold mb-4">AI Art Auction</p>
         <p className="text-gray-400 text-lg mb-8">{t('subtitle')}</p>
         <Link
           href="/sell"
