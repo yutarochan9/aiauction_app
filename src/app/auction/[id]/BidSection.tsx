@@ -27,7 +27,7 @@ function useCountdown(endAt: string) {
   useEffect(() => {
     const calc = () => {
       const diff = new Date(endAt).getTime() - Date.now()
-      if (diff <= 0) return setTimeLeft('終了')
+      if (diff <= 0) return setTimeLeft('Ended')
       const h = Math.floor(diff / 3600000)
       const m = Math.floor((diff % 3600000) / 60000)
       const s = Math.floor((diff % 60000) / 1000)
