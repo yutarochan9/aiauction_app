@@ -43,7 +43,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* ロゴ */}
         <Link href="/" className="text-xl font-bold text-white tracking-tight">
-          AI<span className="text-violet-400">Auction</span>
+          AI<span className="text-violet-400">A</span>II
         </Link>
 
         {/* ナビリンク */}

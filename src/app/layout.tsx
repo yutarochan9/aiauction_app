@@ -8,8 +8,8 @@ import Navbar from '@/components/Navbar'
 const geist = Geist({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'AI Art Auction',
-  description: 'AI-generated art auction marketplace',
+  title: 'AIAII',
+  description: 'AIで生成したアート作品を売買できるマーケットプレイス / AI Art Auction Marketplace',
 }
 
 export default async function RootLayout({

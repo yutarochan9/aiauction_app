@@ -14,7 +14,7 @@ export default function SnsVerifySection({ userId }: { userId: string }) {
   // SNS認証コードを発行
   const generateCode = async () => {
     const supabase = createClient()
-    const newCode = `AIAUCTION-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
+    const newCode = `AIAII-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
     await supabase.from('users').update({ sns_verification_code: newCode }).eq('id', userId)
     setCode(newCode)
     setStep('code')
