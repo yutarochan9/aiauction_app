@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 export default getRequestConfig(async () => {
   // cookieから言語設定を取得（デフォルトは日本語）
   const cookieStore = await cookies()
-  const locale = cookieStore.get('locale')?.value ?? 'ja'
+  const locale = cookieStore.get('locale')?.value ?? 'en'
 
   return {
     locale,

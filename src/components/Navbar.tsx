@@ -11,7 +11,7 @@ export default function Navbar() {
   const t = useTranslations('nav')
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
-  const [locale, setLocale] = useState('ja')
+  const [locale, setLocale] = useState('en')
 
   useEffect(() => {
     const supabase = createClient()

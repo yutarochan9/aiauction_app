@@ -5,12 +5,12 @@ import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 const DURATIONS = [
-  { value: 1/60, label: '1分（テスト用）' },
-  { value: 1,    label: '1時間 / 1 hour' },
-  { value: 6,    label: '6時間 / 6 hours' },
-  { value: 24,   label: '24時間 / 24 hours' },
-  { value: 72,   label: '3日間 / 3 days' },
-  { value: 168,  label: '7日間 / 7 days' },
+  { value: 1/60, label: '1 min (test)' },
+  { value: 1,    label: '1 hour' },
+  { value: 6,    label: '6 hours' },
+  { value: 24,   label: '24 hours' },
+  { value: 72,   label: '3 days' },
+  { value: 168,  label: '7 days' },
 ]
 
 export default function SellPage() {
@@ -46,10 +46,10 @@ export default function SellPage() {
     e.preventDefault()
     setError('')
 
-    if (!file) return setError('画像を選択してください')
-    if (!agreed) return setError('同意チェックが必要です')
-    if (!title) return setError('タイトルを入力してください')
-    if (!startingPrice || Number(startingPrice) <= 0) return setError('開始価格を入力してください')
+    if (!file) return setError('Please select an image')
+    if (!agreed) return setError('Please agree to the terms')
+    if (!title) return setError('Please enter a title')
+    if (!startingPrice || Number(startingPrice) <= 0) return setError('Please enter a starting price')
 
     setSubmitting(true)
 
@@ -64,7 +64,7 @@ export default function SellPage() {
 
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('ログインが必要です')
+      if (!user) throw new Error('Please log in')
 
       const price = Number(startingPrice)
       const { data, error: dbErr } = await supabase
@@ -88,7 +88,7 @@ export default function SellPage() {
       if (dbErr) throw dbErr
       router.push(`/auction/${data.id}`)
     } catch (err: any) {
-      setError(err.message ?? 'エラーが発生しました')
+      setError(err.message ?? 'An error occurred')
     } finally {
       setSubmitting(false)
     }
@@ -96,13 +96,13 @@ export default function SellPage() {
 
   return (
     <div className="max-w-xl mx-auto py-4">
-      <h1 className="text-2xl font-bold text-gray-900 mb-8">出品する / List Artwork</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-8">List Artwork</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
 
         {/* 画像アップロード */}
         <div>
-          <label className="block text-sm font-medium text-gray-600 mb-2">作品画像 / Artwork Image</label>
+          <label className="block text-sm font-medium text-gray-600 mb-2">Artwork Image</label>
           <div
             className="border-2 border-dashed border-stone-300 rounded-xl p-8 text-center cursor-pointer hover:border-[#B8902A] transition-colors bg-white"
             onClick={() => fileRef.current?.click()}
@@ -113,9 +113,11 @@ export default function SellPage() {
               <img src={preview} alt="preview" className="max-h-64 mx-auto rounded-lg object-contain" />
             ) : (
               <div className="text-gray-400">
-                <p className="text-4xl mb-3">🖼️</p>
-                <p className="text-sm">クリックまたはドラッグ＆ドロップ</p>
-                <p className="text-xs text-gray-300 mt-1">JPG · PNG · WebP · 最大10MB</p>
+                <svg className="w-10 h-10 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-sm">Click or drag & drop to upload</p>
+                <p className="text-xs text-gray-300 mt-1">JPG · PNG · WebP · Max 10MB</p>
               </div>
             )}
           </div>
@@ -130,7 +132,7 @@ export default function SellPage() {
 
         {/* タイトル */}
         <div>
-          <label className="block text-sm font-medium text-gray-600 mb-1">タイトル / Title</label>
+          <label className="block text-sm font-medium text-gray-600 mb-1">Title</label>
           <input
             type="text"
             value={title}
@@ -143,12 +145,12 @@ export default function SellPage() {
 
         {/* 説明文 */}
         <div>
-          <label className="block text-sm font-medium text-gray-600 mb-1">説明文 / Description <span className="text-gray-300 font-normal">（任意）</span></label>
+          <label className="block text-sm font-medium text-gray-600 mb-1">Description <span className="text-gray-300 font-normal">(optional)</span></label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
-            placeholder="作品の説明を入力してください..."
+            placeholder="Describe your artwork..."
             className="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-300 focus:outline-none focus:border-[#B8902A] transition-colors resize-none"
           />
         </div>
@@ -156,7 +158,7 @@ export default function SellPage() {
         {/* 価格・期間 */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">開始価格 / Starting Price</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Starting Price (USD)</label>
             <div className="relative">
               <span className="absolute left-4 top-3.5 text-gray-400 text-sm">$</span>
               <input
@@ -172,7 +174,7 @@ export default function SellPage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">オークション期間</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Auction Duration</label>
             <select
               value={duration}
               onChange={(e) => setDuration(Number(e.target.value))}
@@ -194,7 +196,7 @@ export default function SellPage() {
             className="mt-0.5 w-4 h-4 accent-[#B8902A]"
           />
           <span className="text-sm text-gray-500 leading-relaxed">
-            この作品は他サービスで未公開の、私が作成したAIアート作品であることに同意します
+            I agree that this is an original AI-generated artwork not published elsewhere
           </span>
         </label>
 
@@ -205,7 +207,7 @@ export default function SellPage() {
           disabled={submitting}
           className="w-full bg-[#2C2C2C] hover:bg-[#3C3C3C] disabled:bg-stone-200 text-white font-semibold py-4 rounded-xl transition-colors text-sm tracking-wide"
         >
-          {submitting ? '出品中...' : '出品する / List Artwork'}
+          {submitting ? 'Listing...' : 'List Artwork'}
         </button>
       </form>
     </div>

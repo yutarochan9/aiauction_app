@@ -49,7 +49,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
             <div className="flex items-center gap-3 mb-1">
               <h1 className="text-xl font-bold text-gray-900">{profile.display_name}</h1>
               {profile.sns_verified && (
-                <span className="text-xs bg-blue-600 text-gray-900 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full flex items-center gap-1">
                   ✓ {t('snsVerified')}
                 </span>
               )}
@@ -62,10 +62,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
             {/* 実績 */}
             <div className="flex gap-6 mt-3 text-sm">
               <span className="text-gray-400">
-                <span className="text-gray-900 font-semibold">{artworks?.length ?? 0}</span> 点出品
+                <span className="text-gray-900 font-semibold">{artworks?.length ?? 0}</span> listings
               </span>
               <span className="text-gray-400">
-                <span className="text-gray-900 font-semibold">{soldCount}</span> 点落札済み
+                <span className="text-gray-900 font-semibold">{soldCount}</span> items won
               </span>
             </div>
           </div>
@@ -80,7 +80,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
       {/* 出品作品一覧 */}
       <h2 className="text-lg font-bold text-gray-900 mb-4">{t('listings')}</h2>
       {!artworks || artworks.length === 0 ? (
-        <p className="text-gray-300">出品作品はありません</p>
+        <p className="text-gray-300">No artworks listed yet</p>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {artworks.map((artwork) => {
@@ -105,7 +105,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                     <p className="text-sm text-gray-900 truncate">{title}</p>
                     {artwork.status === 'sold' && purchase && (
                       <p className="text-xs text-[#B8902A] mt-1">
-                        落札 ${purchase.amount?.toLocaleString()}
+                        Won ${purchase.amount?.toLocaleString()}
                       </p>
                     )}
                   </div>

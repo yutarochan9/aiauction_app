@@ -38,7 +38,7 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
   return (
     <div className="max-w-5xl mx-auto">
       <Link href="/" className="text-gray-400 hover:text-gray-900 text-sm mb-6 inline-block">
-        ← 一覧に戻る
+        ← Back to listings
       </Link>
 
       <div className="grid md:grid-cols-2 gap-10">

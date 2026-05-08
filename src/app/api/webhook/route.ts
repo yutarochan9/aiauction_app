@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
   // 購入者固有ID生成
   const buyerUniqueId = `${buyer_id.slice(0, 8)}-${artwork_id.slice(0, 8)}-${Date.now()}`
 
-  // ダウンロードURL（24時間有効な署名付きURL）
+  // DownloadURL（24時間有効な署名付きURL）
   const { data: signedUrl } = await supabase.storage
     .from('artwork-originals')
     .createSignedUrl(`${buyer_id}/${artwork_id}/original.webp`, 60 * 60 * 24)

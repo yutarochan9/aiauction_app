@@ -46,7 +46,7 @@ export default function SnsVerifySection({ userId }: { userId: string }) {
       await supabase.from('users').update({ sns_verified: true, sns_url: snsUrl }).eq('id', userId)
       setStep('done')
     } else {
-      setError('確認コードが見つかりませんでした。投稿にコードが含まれているか確認してください。')
+      setError('Verification code not found. Please make sure your post contains the code.')
     }
   }
 
@@ -70,7 +70,7 @@ export default function SnsVerifySection({ userId }: { userId: string }) {
       {step === 'code' && (
         <div className="text-left max-w-xs space-y-3">
           <p className="text-sm text-gray-400">
-            以下のコードをX（Twitter）またはInstagramに投稿してください：
+            以下のコードをX（Twitter）orInstagramに投稿してください：
           </p>
           <code className="block bg-stone-100 text-[#B8902A] px-4 py-2 rounded-lg text-sm font-mono">
             {code}
@@ -88,7 +88,7 @@ export default function SnsVerifySection({ userId }: { userId: string }) {
             onClick={verify}
             className="w-full bg-[#2C2C2C] hover:bg-[#3C3C3C] text-white text-sm py-2 rounded-lg transition-colors"
           >
-            確認する
+            Verify
           </button>
         </div>
       )}

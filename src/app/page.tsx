@@ -50,7 +50,7 @@ export default async function HomePage({
           href="/sell"
           className="bg-[#2C2C2C] hover:bg-[#3C3C3C] text-white px-8 py-3 rounded-xl font-semibold transition-colors"
         >
-          出品する / List Artwork
+          List Artwork
         </Link>
       </div>
 

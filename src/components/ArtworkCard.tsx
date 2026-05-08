@@ -87,7 +87,7 @@ export default function ArtworkCard({ artwork, locale }: { artwork: Artwork; loc
               ? 'bg-[#FBF6EC] text-[#B8902A]'
               : 'bg-stone-100 text-stone-500'
           }`}>
-            {artwork.status === 'active' ? '出品中' : artwork.status === 'sold' ? '落札済み' : '終了'}
+            {artwork.status === 'active' ? 'Active' : artwork.status === 'sold' ? 'Sold' : 'Ended'}
           </span>
         </div>
       </div>

@@ -33,12 +33,12 @@ export default function LoginPage() {
       if (error) {
         setError(error.message)
       } else {
-        setMessage('確認メールを送信しました。メールを確認してください。')
+        setMessage('Confirmation email sent. Please check your inbox.')
       }
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) {
-        setError('メールアドレスまたはパスワードが違います')
+        setError('Invalid email or password')
       } else {
         router.push('/')
         router.refresh()
@@ -60,7 +60,7 @@ export default function LoginPage() {
     <div className="max-w-sm mx-auto mt-16">
       <div className="bg-white rounded-2xl border border-stone-200 p-8">
         <h1 className="text-2xl font-bold text-gray-900 text-center mb-8">
-          {mode === 'login' ? 'ログイン' : 'アカウント作成'}
+          {mode === 'login' ? 'Login' : 'Sign Up'}
         </h1>
 
         {/* Googleログインボタン */}
@@ -74,18 +74,18 @@ export default function LoginPage() {
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
           </svg>
-          Google で続ける
+          Continue with Google
         </button>
 
         <div className="flex items-center gap-3 mb-6">
           <div className="flex-1 h-px bg-stone-200" />
-          <span className="text-gray-400 text-sm">または</span>
+          <span className="text-gray-400 text-sm">or</span>
           <div className="flex-1 h-px bg-stone-200" />
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">メールアドレス</label>
+            <label className="block text-sm text-gray-400 mb-1">Email</label>
             <input
               type="email"
               value={email}
@@ -95,7 +95,7 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">パスワード</label>
+            <label className="block text-sm text-gray-400 mb-1">Password</label>
             <input
               type="password"
               value={password}
@@ -114,7 +114,7 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full bg-[#2C2C2C] hover:bg-[#3C3C3C] disabled:bg-stone-200 text-white font-semibold py-3 rounded-xl transition-colors"
           >
-            {loading ? '処理中...' : mode === 'login' ? 'ログイン' : 'アカウント作成'}
+            {loading ? '処理中...' : mode === 'login' ? 'Login' : 'Sign Up'}
           </button>
         </form>
 
@@ -125,7 +125,7 @@ export default function LoginPage() {
               onClick={() => setMode('signup')}
               className="w-full py-3 rounded-xl border border-stone-300 text-gray-300 hover:text-gray-900 hover:border-gray-500 transition-colors text-sm"
             >
-              アカウントをお持ちでない方は <span className="text-[#B8902A] font-medium">新規登録</span>
+              Don't have an account? <span className="text-[#B8902A] font-medium">Sign Up</span>
             </button>
           ) : (
             <button
@@ -133,7 +133,7 @@ export default function LoginPage() {
               onClick={() => setMode('login')}
               className="w-full py-3 rounded-xl border border-stone-300 text-gray-300 hover:text-gray-900 hover:border-gray-500 transition-colors text-sm"
             >
-              すでにアカウントをお持ちの方は <span className="text-[#B8902A] font-medium">ログイン</span>
+              Already have an account? <span className="text-[#B8902A] font-medium">Login</span>
             </button>
           )}
         </div>

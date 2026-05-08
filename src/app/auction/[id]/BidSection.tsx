@@ -107,7 +107,7 @@ export default function BidSection({
         setMessage(data.error ?? '決済の開始に失敗しました')
       }
     } catch {
-      setMessage('エラーが発生しました')
+      setMessage('An error occurred')
     }
     setCheckoutLoading(false)
   }
@@ -115,14 +115,14 @@ export default function BidSection({
   const handleBid = async () => {
     const amount = Number(bidAmount)
     if (isNaN(amount) || amount < minBid) {
-      return setMessage(`$${minBid.toFixed(2)} 以上の金額を入力してください`)
+      return setMessage(`$${minBid.toFixed(2)} or more required`)
     }
     setBidding(true)
     setMessage('')
 
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return (setMessage('ログインが必要です'), setBidding(false))
+    if (!user) return (setMessage('Please log in'), setBidding(false))
 
     // 入札を登録
     const { error } = await supabase.from('bids').insert({
@@ -132,12 +132,12 @@ export default function BidSection({
     })
 
     if (error) {
-      setMessage('入札に失敗しました')
+      setMessage('Bid failed')
     } else {
       // artworksの現在価格を更新
       await supabase.from('artworks').update({ current_price: amount }).eq('id', artwork.id)
       setBidAmount('')
-      setMessage('入札しました！')
+      setMessage('Bid placed!')
     }
     setBidding(false)
   }
@@ -193,23 +193,23 @@ export default function BidSection({
 
       {!currentUser && !isEnded && (
         <a href="/auth/login" className="block w-full text-center bg-stone-100 hover:bg-stone-200 text-gray-900 py-3 rounded-xl transition-colors">
-          ログインして入札する / Login to Bid
+          Login to Bid
         </a>
       )}
 
       {/* 落札者向け購入ボタン */}
       {isWinner && !isSold && (
         <div className="bg-[#FBF6EC] border border-[#B8902A] rounded-xl p-5 space-y-3">
-          <p className="text-[#B8902A] font-semibold">🎉 おめでとうございます！落札しました</p>
+          <p className="text-[#B8902A] font-semibold">🎉 Congratulations! You won!</p>
           <p className="text-gray-400 text-sm">
-            落札額: <span className="text-gray-900 font-bold">${currentPrice.toLocaleString()}</span>
+            Winning bid: <span className="text-gray-900 font-bold">${currentPrice.toLocaleString()}</span>
           </p>
           <button
             onClick={handlePurchase}
             disabled={checkoutLoading}
             className="w-full bg-[#2C2C2C] hover:bg-[#3C3C3C] disabled:bg-stone-200 text-white font-bold py-3 rounded-xl transition-colors"
           >
-            {checkoutLoading ? '処理中...' : 'カードで支払う'}
+            {checkoutLoading ? 'Processing...' : 'Pay with Card'}
           </button>
           {message && (
             <p className="text-red-400 text-sm">{message}</p>
@@ -219,7 +219,7 @@ export default function BidSection({
 
       {isSold && isEnded && (
         <div className="bg-stone-100 rounded-xl p-4 text-center">
-          <p className="text-gray-400 text-sm">この作品は落札済みです</p>
+          <p className="text-gray-400 text-sm">This artwork has been sold</p>
         </div>
       )}
 
@@ -241,7 +241,7 @@ export default function BidSection({
                     </div>
                   )}
                   <span className="text-sm text-gray-300">{bid.users?.display_name ?? 'Anonymous'}</span>
-                  {i === 0 && <span className="text-xs text-[#B8902A]">最高入札</span>}
+                  {i === 0 && <span className="text-xs text-[#B8902A]">Top Bid</span>}
                 </div>
                 <span className="font-semibold text-gray-900">${bid.amount.toLocaleString()}</span>
               </div>

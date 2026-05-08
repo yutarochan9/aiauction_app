@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Auction still running' }, { status: 400 })
   }
 
-  // 落札者確認（最高入札者）
+  // 落札者確認（Top Bid者）
   const { data: topBid } = await supabase
     .from('bids')
     .select('user_id, amount')

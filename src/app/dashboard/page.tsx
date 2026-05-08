@@ -47,10 +47,10 @@ export default async function DashboardPage() {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900">{t('myListings')}</h2>
-          <Link href="/sell" className="text-sm text-[#B8902A] hover:text-[#B8902A]">+ 出品する</Link>
+          <Link href="/sell" className="text-sm text-[#B8902A] hover:text-[#B8902A]">+ List Artwork</Link>
         </div>
         {!myArtworks?.length ? (
-          <p className="text-gray-300 text-sm">出品中の作品はありません</p>
+          <p className="text-gray-300 text-sm">No listings yet</p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {myArtworks.map((a) => {
@@ -75,7 +75,7 @@ export default async function DashboardPage() {
                         a.status === 'sold' ? 'bg-[#FBF6EC] text-[#B8902A]' :
                         'bg-stone-100 text-stone-500'
                       }`}>
-                        {a.status === 'active' ? '出品中' : a.status === 'sold' ? '落札済み' : '終了'}
+                        {a.status === 'active' ? 'Active' : a.status === 'sold' ? 'Sold' : 'Ended'}
                       </span>
                     </div>
                   </div>
@@ -90,7 +90,7 @@ export default async function DashboardPage() {
       <section>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('myBids')}</h2>
         {!uniqueBidArtworks.length ? (
-          <p className="text-gray-300 text-sm">参加中のオークションはありません</p>
+          <p className="text-gray-300 text-sm">No active bids</p>
         ) : (
           <div className="space-y-3">
             {uniqueBidArtworks.map((bid) => {
@@ -107,13 +107,13 @@ export default async function DashboardPage() {
                   <div className="flex-1">
                     <p className="text-gray-900 text-sm font-medium">{title}</p>
                     <p className="text-gray-400 text-xs">
-                      現在の最高入札: ${artwork.current_price?.toLocaleString()}
+                      Current bid: ${artwork.current_price?.toLocaleString()}
                     </p>
                   </div>
                   <span className={`text-xs px-2 py-1 rounded-full ${
                     artwork.status === 'active' ? 'bg-[#F0F7F0] text-[#3D7A4D]' : 'bg-stone-100 text-stone-500'
                   }`}>
-                    {artwork.status === 'active' ? '進行中' : '終了'}
+                    {artwork.status === 'active' ? 'Active' : 'Ended'}
                   </span>
                 </Link>
               )
@@ -126,12 +126,12 @@ export default async function DashboardPage() {
       <section>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('myPurchases')}</h2>
         {!myPurchases?.length ? (
-          <p className="text-gray-300 text-sm">落札済み作品はありません</p>
+          <p className="text-gray-300 text-sm">No purchases yet</p>
         ) : (
           <div className="space-y-3">
             {myPurchases.map((p) => {
               const artwork = p.artworks as any
-              const title = artwork ? (locale === 'ja' ? artwork.title_ja : artwork.title_en) : '不明'
+              const title = artwork ? (locale === 'ja' ? artwork.title_ja : artwork.title_en) : 'Unknown'
               return (
                 <div key={p.id} className="flex items-center gap-4 bg-white rounded-xl p-4 border border-stone-200">
                   {artwork?.image_url && (
@@ -139,14 +139,14 @@ export default async function DashboardPage() {
                   )}
                   <div className="flex-1">
                     <p className="text-gray-900 text-sm font-medium">{title}</p>
-                    <p className="text-gray-400 text-xs">落札額: ${p.amount?.toLocaleString()}</p>
+                    <p className="text-gray-400 text-xs">Winning bid: ${p.amount?.toLocaleString()}</p>
                   </div>
                   {p.download_url && new Date(p.download_expires_at) > new Date() && (
                     <a
                       href={p.download_url}
                       className="text-xs bg-[#2C2C2C] hover:bg-[#3C3C3C] text-white px-3 py-1.5 rounded-lg transition-colors"
                     >
-                      ダウンロード
+                      Download
                     </a>
                   )}
                 </div>
