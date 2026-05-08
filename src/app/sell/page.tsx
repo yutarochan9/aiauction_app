@@ -26,6 +26,8 @@ export default function SellPage() {
   const [preview, setPreview] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [tags, setTags] = useState<string[]>([])
+  const [tagInput, setTagInput] = useState('')
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
@@ -41,6 +43,16 @@ export default function SellPage() {
     setFile(f)
     setPreview(URL.createObjectURL(f))
   }
+
+  const addTag = (val: string) => {
+    const t = val.trim().toLowerCase().replace(/\s+/g, '-')
+    if (t && !tags.includes(t) && tags.length < 5) {
+      setTags([...tags, t])
+    }
+    setTagInput('')
+  }
+
+  const removeTag = (t: string) => setTags(tags.filter((x) => x !== t))
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -81,6 +93,7 @@ export default function SellPage() {
           current_price: price,
           end_at: endAt,
           status: 'active',
+          tags,
         })
         .select()
         .single()
@@ -152,6 +165,36 @@ export default function SellPage() {
             rows={4}
             placeholder="Describe your artwork..."
             className="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-300 focus:outline-none focus:border-[#B8902A] transition-colors resize-none"
+          />
+        </div>
+
+        {/* タグ */}
+        <div>
+          <label className="block text-sm font-medium text-gray-600 mb-1">
+            Tags <span className="text-gray-300 font-normal">(up to 5)</span>
+          </label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {tags.map((t) => (
+              <span key={t} className="flex items-center gap-1 bg-stone-100 text-gray-600 text-xs px-3 py-1.5 rounded-full">
+                #{t}
+                <button type="button" onClick={() => removeTag(t)} className="text-gray-400 hover:text-gray-600 leading-none">×</button>
+              </span>
+            ))}
+          </div>
+          <input
+            type="text"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault()
+                addTag(tagInput)
+              }
+            }}
+            onBlur={() => { if (tagInput) addTag(tagInput) }}
+            placeholder="Type a tag and press Enter (e.g. abstract, cyberpunk)"
+            disabled={tags.length >= 5}
+            className="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-300 focus:outline-none focus:border-[#B8902A] transition-colors text-sm disabled:bg-stone-50"
           />
         </div>
 

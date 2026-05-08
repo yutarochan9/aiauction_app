@@ -12,6 +12,7 @@ type Artwork = {
   current_price: number
   end_at: string
   status: string
+  tags: string[] | null
   bids: { count: number }[]
 }
 
@@ -89,6 +90,15 @@ export default function ArtworkCard({ artwork, locale }: { artwork: Artwork; loc
           }`}>
             {artwork.status === 'active' ? 'Active' : artwork.status === 'sold' ? 'Sold' : 'Ended'}
           </span>
+          {artwork.tags && artwork.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {artwork.tags.slice(0, 2).map((tag) => (
+                <span key={tag} className="text-[10px] text-gray-400 bg-stone-50 border border-stone-200 px-2 py-0.5 rounded-full">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </Link>
