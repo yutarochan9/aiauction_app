@@ -21,8 +21,8 @@ export default async function RootLayout({
   const messages = await getMessages()
 
   return (
-    <html lang={locale} className="dark">
-      <body className={`${geist.className} bg-gray-950 text-gray-100 min-h-screen`}>
+    <html lang={locale}>
+      <body className={`${geist.className} bg-stone-50 text-gray-800 min-h-screen`}>
         <NextIntlClientProvider messages={messages}>
           <Navbar />
           <main className="max-w-7xl mx-auto px-4 py-8">

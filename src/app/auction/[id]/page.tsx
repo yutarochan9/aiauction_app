@@ -37,7 +37,7 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="max-w-5xl mx-auto">
-      <Link href="/" className="text-gray-400 hover:text-white text-sm mb-6 inline-block">
+      <Link href="/" className="text-gray-400 hover:text-gray-900 text-sm mb-6 inline-block">
         ← 一覧に戻る
       </Link>
 
@@ -45,7 +45,7 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
         {/* 左：画像 */}
         <div>
           <div
-            className="rounded-2xl overflow-hidden bg-gray-900 border border-gray-800"
+            className="rounded-2xl overflow-hidden bg-white border border-stone-200"
           >
             {artwork.image_url ? (
               <img
@@ -55,11 +55,11 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
                 draggable={false}
               />
             ) : (
-              <div className="aspect-square flex items-center justify-center text-gray-600">No Image</div>
+              <div className="aspect-square flex items-center justify-center text-gray-300">No Image</div>
             )}
           </div>
           {/* 保護の案内 */}
-          <p className="text-xs text-gray-600 mt-3 text-center">{t('protectedNotice')}</p>
+          <p className="text-xs text-gray-300 mt-3 text-center">{t('protectedNotice')}</p>
         </div>
 
         {/* 右：情報・入札 */}
@@ -69,22 +69,22 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
             {seller?.avatar_url ? (
               <img src={seller.avatar_url} alt="" className="w-10 h-10 rounded-full" />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold">
+              <div className="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center text-sm font-bold">
                 {seller?.display_name?.[0] ?? '?'}
               </div>
             )}
             <div>
-              <Link href={`/profile/${artwork.user_id}`} className="font-medium text-white hover:text-violet-400">
+              <Link href={`/profile/${artwork.user_id}`} className="font-medium text-gray-900 hover:text-amber-700">
                 {seller?.display_name ?? 'Unknown'}
               </Link>
               {seller?.sns_verified && (
-                <span className="ml-2 text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">✓ SNS認証済み</span>
+                <span className="ml-2 text-xs bg-blue-600 text-gray-900 px-2 py-0.5 rounded-full">✓ SNS認証済み</span>
               )}
             </div>
           </div>
 
           {/* タイトル */}
-          <h1 className="text-2xl font-bold text-white">{title}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
 
           {description && (
             <p className="text-gray-400 leading-relaxed">{description}</p>

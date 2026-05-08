@@ -58,8 +58,8 @@ export default function LoginPage() {
 
   return (
     <div className="max-w-sm mx-auto mt-16">
-      <div className="bg-gray-900 rounded-2xl border border-gray-800 p-8">
-        <h1 className="text-2xl font-bold text-white text-center mb-8">
+      <div className="bg-white rounded-2xl border border-stone-200 p-8">
+        <h1 className="text-2xl font-bold text-gray-900 text-center mb-8">
           {mode === 'login' ? 'ログイン' : 'アカウント作成'}
         </h1>
 
@@ -78,9 +78,9 @@ export default function LoginPage() {
         </button>
 
         <div className="flex items-center gap-3 mb-6">
-          <div className="flex-1 h-px bg-gray-700" />
-          <span className="text-gray-500 text-sm">または</span>
-          <div className="flex-1 h-px bg-gray-700" />
+          <div className="flex-1 h-px bg-stone-200" />
+          <span className="text-gray-400 text-sm">または</span>
+          <div className="flex-1 h-px bg-stone-200" />
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -90,7 +90,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500"
+              className="w-full bg-stone-100 border border-stone-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:border-amber-500"
               required
             />
           </div>
@@ -100,7 +100,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-violet-500"
+              className="w-full bg-stone-100 border border-stone-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:border-amber-500"
               required
               minLength={6}
             />
@@ -112,7 +112,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-violet-600 hover:bg-violet-500 disabled:bg-gray-700 text-white font-semibold py-3 rounded-xl transition-colors"
+            className="w-full bg-amber-700 hover:bg-amber-600 disabled:bg-stone-200 text-white font-semibold py-3 rounded-xl transition-colors"
           >
             {loading ? '処理中...' : mode === 'login' ? 'ログイン' : 'アカウント作成'}
           </button>
@@ -123,17 +123,17 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setMode('signup')}
-              className="w-full py-3 rounded-xl border border-gray-700 text-gray-300 hover:text-white hover:border-gray-500 transition-colors text-sm"
+              className="w-full py-3 rounded-xl border border-stone-300 text-gray-300 hover:text-gray-900 hover:border-gray-500 transition-colors text-sm"
             >
-              アカウントをお持ちでない方は <span className="text-violet-400 font-medium">新規登録</span>
+              アカウントをお持ちでない方は <span className="text-amber-700 font-medium">新規登録</span>
             </button>
           ) : (
             <button
               type="button"
               onClick={() => setMode('login')}
-              className="w-full py-3 rounded-xl border border-gray-700 text-gray-300 hover:text-white hover:border-gray-500 transition-colors text-sm"
+              className="w-full py-3 rounded-xl border border-stone-300 text-gray-300 hover:text-gray-900 hover:border-gray-500 transition-colors text-sm"
             >
-              すでにアカウントをお持ちの方は <span className="text-violet-400 font-medium">ログイン</span>
+              すでにアカウントをお持ちの方は <span className="text-amber-700 font-medium">ログイン</span>
             </button>
           )}
         </div>

@@ -44,10 +44,10 @@ export default function ArtworkCard({ artwork, locale }: { artwork: Artwork; loc
 
   return (
     <Link href={`/auction/${artwork.id}`} className="group block">
-      <div className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 hover:border-violet-500 transition-colors">
+      <div className="bg-white rounded-xl overflow-hidden border border-stone-200 hover:border-amber-500 transition-colors">
         {/* 画像（右クリック・長押し禁止） */}
         <div
-          className="aspect-square relative overflow-hidden bg-gray-800"
+          className="aspect-square relative overflow-hidden bg-stone-100"
           onContextMenu={(e) => e.preventDefault()}
         >
           {artwork.image_url ? (
@@ -58,13 +58,13 @@ export default function ArtworkCard({ artwork, locale }: { artwork: Artwork; loc
               draggable={false}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-600 text-sm">
+            <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm">
               No Image
             </div>
           )}
           {isEnded && (
             <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">
+              <span className="text-gray-900 font-bold text-lg">
                 {artwork.status === 'sold' ? t('sold') : t('ended')}
               </span>
             </div>
@@ -73,20 +73,20 @@ export default function ArtworkCard({ artwork, locale }: { artwork: Artwork; loc
 
         {/* 情報 */}
         <div className="p-4">
-          <h3 className="font-semibold text-white truncate mb-3">{title}</h3>
+          <h3 className="font-semibold text-gray-900 truncate mb-3">{title}</h3>
           <div className="flex justify-between items-end">
             <div>
-              <p className="text-xs text-gray-500 mb-1">{t('currentPrice')}</p>
-              <p className="text-lg font-bold text-violet-400">
+              <p className="text-xs text-gray-400 mb-1">{t('currentPrice')}</p>
+              <p className="text-lg font-bold text-amber-700">
                 ${artwork.current_price.toLocaleString()}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-gray-500">{t('timeLeft')}</p>
-              <p className={`text-sm font-medium ${isEnded ? 'text-gray-500' : 'text-amber-400'}`}>
+              <p className="text-xs text-gray-400">{t('timeLeft')}</p>
+              <p className={`text-sm font-medium ${isEnded ? 'text-gray-400' : 'text-amber-600'}`}>
                 {isEnded ? (artwork.status === 'sold' ? t('sold') : t('ended')) : timeLeft}
               </p>
-              <p className="text-xs text-gray-600 mt-1">{bidCount} {t('bidCount')}</p>
+              <p className="text-xs text-gray-300 mt-1">{bidCount} {t('bidCount')}</p>
             </div>
           </div>
         </div>

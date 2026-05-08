@@ -98,20 +98,20 @@ export default function SellPage() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-white mb-8">{t('title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-8">{t('title')}</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* 画像アップロード */}
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">{t('image')}</label>
           <div
-            className="border-2 border-dashed border-gray-700 rounded-xl p-8 text-center cursor-pointer hover:border-violet-500 transition-colors"
+            className="border-2 border-dashed border-stone-300 rounded-xl p-8 text-center cursor-pointer hover:border-amber-500 transition-colors"
             onClick={() => fileRef.current?.click()}
           >
             {preview ? (
               <img src={preview} alt="preview" className="max-h-64 mx-auto rounded-lg object-contain" />
             ) : (
-              <div className="text-gray-500">
+              <div className="text-gray-400">
                 <p className="text-4xl mb-2">🖼️</p>
                 <p className="text-sm">{t('imageHint')}</p>
               </div>
@@ -134,7 +134,7 @@ export default function SellPage() {
               type="text"
               value={form.title_ja}
               onChange={(e) => setForm({ ...form, title_ja: e.target.value })}
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-violet-500"
+              className="w-full bg-stone-100 border border-stone-300 rounded-lg px-4 py-2 text-gray-900 focus:outline-none focus:border-amber-500"
               required
             />
           </div>
@@ -144,7 +144,7 @@ export default function SellPage() {
               type="text"
               value={form.title_en}
               onChange={(e) => setForm({ ...form, title_en: e.target.value })}
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-violet-500"
+              className="w-full bg-stone-100 border border-stone-300 rounded-lg px-4 py-2 text-gray-900 focus:outline-none focus:border-amber-500"
               required
             />
           </div>
@@ -158,7 +158,7 @@ export default function SellPage() {
               value={form.description_ja}
               onChange={(e) => setForm({ ...form, description_ja: e.target.value })}
               rows={4}
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-violet-500 resize-none"
+              className="w-full bg-stone-100 border border-stone-300 rounded-lg px-4 py-2 text-gray-900 focus:outline-none focus:border-amber-500 resize-none"
             />
           </div>
           <div>
@@ -167,7 +167,7 @@ export default function SellPage() {
               value={form.description_en}
               onChange={(e) => setForm({ ...form, description_en: e.target.value })}
               rows={4}
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-violet-500 resize-none"
+              className="w-full bg-stone-100 border border-stone-300 rounded-lg px-4 py-2 text-gray-900 focus:outline-none focus:border-amber-500 resize-none"
             />
           </div>
         </div>
@@ -184,7 +184,7 @@ export default function SellPage() {
                 step="0.01"
                 value={form.starting_price}
                 onChange={(e) => setForm({ ...form, starting_price: e.target.value })}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-8 pr-4 py-2 text-white focus:outline-none focus:border-violet-500"
+                className="w-full bg-stone-100 border border-stone-300 rounded-lg pl-8 pr-4 py-2 text-gray-900 focus:outline-none focus:border-amber-500"
                 required
               />
             </div>
@@ -194,7 +194,7 @@ export default function SellPage() {
             <select
               value={form.duration}
               onChange={(e) => setForm({ ...form, duration: Number(e.target.value) })}
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-violet-500"
+              className="w-full bg-stone-100 border border-stone-300 rounded-lg px-4 py-2 text-gray-900 focus:outline-none focus:border-amber-500"
             >
               {DURATIONS.map(({ value, labelKey }) => (
                 <option key={value} value={value}>{t(labelKey as any)}</option>
@@ -209,7 +209,7 @@ export default function SellPage() {
             type="checkbox"
             checked={form.agreed}
             onChange={(e) => setForm({ ...form, agreed: e.target.checked })}
-            className="mt-1 w-4 h-4 accent-violet-500"
+            className="mt-1 w-4 h-4 accent-amber-600"
           />
           <span className="text-sm text-gray-400">{t('agreeCheck')}</span>
         </label>
@@ -221,7 +221,7 @@ export default function SellPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full bg-violet-600 hover:bg-violet-500 disabled:bg-gray-700 text-white font-semibold py-3 rounded-xl transition-colors"
+          className="w-full bg-amber-700 hover:bg-amber-600 disabled:bg-stone-200 text-white font-semibold py-3 rounded-xl transition-colors"
         >
           {submitting ? t('submitting') : t('submit')}
         </button>

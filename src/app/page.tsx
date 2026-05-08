@@ -41,13 +41,13 @@ export default async function HomePage({
     <div>
       {/* ヒーローセクション */}
       <div className="text-center py-12 mb-10">
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
           {t('title')}
         </h1>
         <p className="text-gray-400 text-lg mb-8">{t('subtitle')}</p>
         <Link
           href="/sell"
-          className="bg-violet-600 hover:bg-violet-500 text-white px-8 py-3 rounded-xl font-semibold transition-colors"
+          className="bg-amber-700 hover:bg-amber-600 text-white px-8 py-3 rounded-xl font-semibold transition-colors"
         >
           出品する / List Artwork
         </Link>
@@ -61,8 +61,8 @@ export default async function HomePage({
             href={`/?sort=${key}`}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               sort === key
-                ? 'bg-violet-600 text-white'
-                : 'bg-gray-800 text-gray-400 hover:text-white'
+                ? 'bg-amber-700 text-gray-900'
+                : 'bg-stone-100 text-gray-400 hover:text-gray-900'
             }`}
           >
             {sortLabels[key]}
@@ -72,7 +72,7 @@ export default async function HomePage({
 
       {/* 作品一覧 */}
       {!artworks || artworks.length === 0 ? (
-        <div className="text-center py-24 text-gray-500">{t('noArtworks')}</div>
+        <div className="text-center py-24 text-gray-400">{t('noArtworks')}</div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {artworks.map((artwork) => (

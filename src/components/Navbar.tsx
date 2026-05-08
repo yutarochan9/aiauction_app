@@ -14,16 +14,12 @@ export default function Navbar() {
   const [locale, setLocale] = useState('ja')
 
   useEffect(() => {
-    // ユーザーセッション取得
     const supabase = createClient()
     supabase.auth.getUser().then(({ data }) => setUser(data.user))
-
-    // 現在の言語をcookieから取得
     const match = document.cookie.match(/locale=([^;]+)/)
     if (match) setLocale(match[1])
   }, [])
 
-  // 言語切り替え
   const toggleLocale = () => {
     const next = locale === 'ja' ? 'en' : 'ja'
     document.cookie = `locale=${next}; path=/; max-age=31536000`
@@ -31,7 +27,6 @@ export default function Navbar() {
     router.refresh()
   }
 
-  // ログアウト
   const handleLogout = async () => {
     await fetch('/auth/logout', { method: 'POST' })
     router.push('/')
@@ -39,25 +34,30 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="border-b border-gray-800 bg-gray-900">
+    <nav className="border-b border-neutral-800 bg-black">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        {/* ロゴ */}
-        <Link href="/" className="text-xl font-bold text-white tracking-tight">
-          AI<span className="text-violet-400">A</span>II
+        {/* ロゴ画像 */}
+        <Link href="/">
+          <img
+            src="/aiaii_logo.png"
+            alt="AIAII"
+            className="h-9 w-auto object-contain"
+            draggable={false}
+          />
         </Link>
 
         {/* ナビリンク */}
         <div className="flex items-center gap-6">
-          <Link href="/" className="text-gray-300 hover:text-white transition-colors text-sm">
+          <Link href="/" className="text-neutral-400 hover:text-white transition-colors text-sm">
             {t('home')}
           </Link>
 
           {user && (
             <>
-              <Link href="/sell" className="text-gray-300 hover:text-white transition-colors text-sm">
+              <Link href="/sell" className="text-neutral-400 hover:text-white transition-colors text-sm">
                 {t('sell')}
               </Link>
-              <Link href="/dashboard" className="text-gray-300 hover:text-white transition-colors text-sm">
+              <Link href="/dashboard" className="text-neutral-400 hover:text-white transition-colors text-sm">
                 {t('dashboard')}
               </Link>
             </>
@@ -66,7 +66,7 @@ export default function Navbar() {
           {/* 言語切り替え */}
           <button
             onClick={toggleLocale}
-            className="text-xs px-3 py-1 border border-gray-600 rounded-full text-gray-400 hover:text-white hover:border-gray-400 transition-colors"
+            className="text-xs px-3 py-1 border border-neutral-700 rounded-full text-neutral-400 hover:text-white hover:border-neutral-500 transition-colors"
           >
             {locale === 'ja' ? 'EN' : '日本語'}
           </button>
@@ -82,14 +82,14 @@ export default function Navbar() {
                     className="w-8 h-8 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-violet-600 flex items-center justify-center text-xs font-bold">
+                  <div className="w-8 h-8 rounded-full bg-amber-700 flex items-center justify-center text-xs font-bold text-white">
                     {user.email?.[0]?.toUpperCase()}
                   </div>
                 )}
               </Link>
               <button
                 onClick={handleLogout}
-                className="text-sm text-gray-400 hover:text-white transition-colors"
+                className="text-sm text-neutral-400 hover:text-white transition-colors"
               >
                 {t('logout')}
               </button>
@@ -97,7 +97,7 @@ export default function Navbar() {
           ) : (
             <Link
               href="/auth/login"
-              className="bg-violet-600 hover:bg-violet-500 text-white text-sm px-4 py-2 rounded-lg transition-colors"
+              className="bg-amber-700 hover:bg-amber-600 text-white text-sm px-4 py-2 rounded-lg transition-colors"
             >
               {t('login')}
             </Link>

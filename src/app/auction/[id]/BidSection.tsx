@@ -145,15 +145,15 @@ export default function BidSection({
   return (
     <div className="space-y-6">
       {/* 現在価格・残り時間 */}
-      <div className="bg-gray-900 rounded-xl p-5 border border-gray-800 grid grid-cols-2 gap-4">
+      <div className="bg-white rounded-xl p-5 border border-stone-200 grid grid-cols-2 gap-4">
         <div>
-          <p className="text-xs text-gray-500 mb-1">{t('currentPrice')}</p>
-          <p className="text-3xl font-bold text-violet-400">${currentPrice.toLocaleString()}</p>
-          <p className="text-xs text-gray-600 mt-1">{bids.length} {t('bidCount')}</p>
+          <p className="text-xs text-gray-400 mb-1">{t('currentPrice')}</p>
+          <p className="text-3xl font-bold text-amber-700">${currentPrice.toLocaleString()}</p>
+          <p className="text-xs text-gray-300 mt-1">{bids.length} {t('bidCount')}</p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-gray-500 mb-1">{t('timeLeft')}</p>
-          <p className={`text-2xl font-bold ${isEnded ? 'text-gray-500' : 'text-amber-400'}`}>
+          <p className="text-xs text-gray-400 mb-1">{t('timeLeft')}</p>
+          <p className={`text-2xl font-bold ${isEnded ? 'text-gray-400' : 'text-amber-600'}`}>
             {isEnded ? t('ended') : timeLeft}
           </p>
         </div>
@@ -172,13 +172,13 @@ export default function BidSection({
                 value={bidAmount}
                 onChange={(e) => setBidAmount(e.target.value)}
                 placeholder={`${minBid.toFixed(2)} 以上`}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:border-violet-500"
+                className="w-full bg-stone-100 border border-stone-300 rounded-lg pl-8 pr-4 py-3 text-gray-900 focus:outline-none focus:border-amber-500"
               />
             </div>
             <button
               onClick={handleBid}
               disabled={bidding}
-              className="bg-violet-600 hover:bg-violet-500 disabled:bg-gray-700 text-white font-semibold px-6 rounded-lg transition-colors"
+              className="bg-amber-700 hover:bg-amber-600 disabled:bg-stone-200 text-white font-semibold px-6 rounded-lg transition-colors"
             >
               {bidding ? '...' : t('placeBid')}
             </button>
@@ -192,22 +192,22 @@ export default function BidSection({
       )}
 
       {!currentUser && !isEnded && (
-        <a href="/auth/login" className="block w-full text-center bg-gray-800 hover:bg-gray-700 text-white py-3 rounded-xl transition-colors">
+        <a href="/auth/login" className="block w-full text-center bg-stone-100 hover:bg-stone-200 text-gray-900 py-3 rounded-xl transition-colors">
           ログインして入札する / Login to Bid
         </a>
       )}
 
       {/* 落札者向け購入ボタン */}
       {isWinner && !isSold && (
-        <div className="bg-violet-900/20 border border-violet-700 rounded-xl p-5 space-y-3">
-          <p className="text-violet-300 font-semibold">🎉 おめでとうございます！落札しました</p>
+        <div className="bg-amber-50 border border-amber-400 rounded-xl p-5 space-y-3">
+          <p className="text-amber-600 font-semibold">🎉 おめでとうございます！落札しました</p>
           <p className="text-gray-400 text-sm">
-            落札額: <span className="text-white font-bold">${currentPrice.toLocaleString()}</span>
+            落札額: <span className="text-gray-900 font-bold">${currentPrice.toLocaleString()}</span>
           </p>
           <button
             onClick={handlePurchase}
             disabled={checkoutLoading}
-            className="w-full bg-violet-600 hover:bg-violet-500 disabled:bg-gray-700 text-white font-bold py-3 rounded-xl transition-colors"
+            className="w-full bg-amber-700 hover:bg-amber-600 disabled:bg-stone-200 text-white font-bold py-3 rounded-xl transition-colors"
           >
             {checkoutLoading ? '処理中...' : 'カードで支払う'}
           </button>
@@ -218,7 +218,7 @@ export default function BidSection({
       )}
 
       {isSold && isEnded && (
-        <div className="bg-gray-800 rounded-xl p-4 text-center">
+        <div className="bg-stone-100 rounded-xl p-4 text-center">
           <p className="text-gray-400 text-sm">この作品は落札済みです</p>
         </div>
       )}
@@ -227,23 +227,23 @@ export default function BidSection({
       <div>
         <h3 className="text-sm font-medium text-gray-400 mb-3">{t('bidHistory')}</h3>
         {bids.length === 0 ? (
-          <p className="text-gray-600 text-sm">{t('noBids')}</p>
+          <p className="text-gray-300 text-sm">{t('noBids')}</p>
         ) : (
           <div className="space-y-2">
             {bids.map((bid, i) => (
-              <div key={bid.id} className={`flex items-center justify-between p-3 rounded-lg ${i === 0 ? 'bg-violet-900/30 border border-violet-800' : 'bg-gray-900'}`}>
+              <div key={bid.id} className={`flex items-center justify-between p-3 rounded-lg ${i === 0 ? 'bg-amber-50 border border-amber-300' : 'bg-white'}`}>
                 <div className="flex items-center gap-2">
                   {bid.users?.avatar_url ? (
                     <img src={bid.users.avatar_url} alt="" className="w-6 h-6 rounded-full" />
                   ) : (
-                    <div className="w-6 h-6 rounded-full bg-gray-700 text-xs flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-full bg-stone-200 text-xs flex items-center justify-center">
                       {bid.users?.display_name?.[0]}
                     </div>
                   )}
                   <span className="text-sm text-gray-300">{bid.users?.display_name ?? 'Anonymous'}</span>
-                  {i === 0 && <span className="text-xs text-violet-400">最高入札</span>}
+                  {i === 0 && <span className="text-xs text-amber-700">最高入札</span>}
                 </div>
-                <span className="font-semibold text-white">${bid.amount.toLocaleString()}</span>
+                <span className="font-semibold text-gray-900">${bid.amount.toLocaleString()}</span>
               </div>
             ))}
           </div>
