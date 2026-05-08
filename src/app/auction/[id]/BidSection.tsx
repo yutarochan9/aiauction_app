@@ -148,12 +148,12 @@ export default function BidSection({
       <div className="bg-white rounded-xl p-5 border border-stone-200 grid grid-cols-2 gap-4">
         <div>
           <p className="text-xs text-gray-400 mb-1">{t('currentPrice')}</p>
-          <p className="text-3xl font-bold text-amber-700">${currentPrice.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-[#B8902A]">${currentPrice.toLocaleString()}</p>
           <p className="text-xs text-gray-300 mt-1">{bids.length} {t('bidCount')}</p>
         </div>
         <div className="text-right">
           <p className="text-xs text-gray-400 mb-1">{t('timeLeft')}</p>
-          <p className={`text-2xl font-bold ${isEnded ? 'text-gray-400' : 'text-amber-600'}`}>
+          <p className={`text-2xl font-bold ${isEnded ? 'text-gray-400' : 'text-[#B8902A]'}`}>
             {isEnded ? t('ended') : timeLeft}
           </p>
         </div>
@@ -172,13 +172,13 @@ export default function BidSection({
                 value={bidAmount}
                 onChange={(e) => setBidAmount(e.target.value)}
                 placeholder={`${minBid.toFixed(2)} 以上`}
-                className="w-full bg-stone-100 border border-stone-300 rounded-lg pl-8 pr-4 py-3 text-gray-900 focus:outline-none focus:border-amber-500"
+                className="w-full bg-stone-100 border border-stone-300 rounded-lg pl-8 pr-4 py-3 text-gray-900 focus:outline-none focus:border-[#B8902A]"
               />
             </div>
             <button
               onClick={handleBid}
               disabled={bidding}
-              className="bg-amber-700 hover:bg-amber-600 disabled:bg-stone-200 text-white font-semibold px-6 rounded-lg transition-colors"
+              className="bg-[#2C2C2C] hover:bg-[#3C3C3C] disabled:bg-stone-200 text-white font-semibold px-6 rounded-lg transition-colors"
             >
               {bidding ? '...' : t('placeBid')}
             </button>
@@ -199,15 +199,15 @@ export default function BidSection({
 
       {/* 落札者向け購入ボタン */}
       {isWinner && !isSold && (
-        <div className="bg-amber-50 border border-amber-400 rounded-xl p-5 space-y-3">
-          <p className="text-amber-600 font-semibold">🎉 おめでとうございます！落札しました</p>
+        <div className="bg-[#FBF6EC] border border-[#B8902A] rounded-xl p-5 space-y-3">
+          <p className="text-[#B8902A] font-semibold">🎉 おめでとうございます！落札しました</p>
           <p className="text-gray-400 text-sm">
             落札額: <span className="text-gray-900 font-bold">${currentPrice.toLocaleString()}</span>
           </p>
           <button
             onClick={handlePurchase}
             disabled={checkoutLoading}
-            className="w-full bg-amber-700 hover:bg-amber-600 disabled:bg-stone-200 text-white font-bold py-3 rounded-xl transition-colors"
+            className="w-full bg-[#2C2C2C] hover:bg-[#3C3C3C] disabled:bg-stone-200 text-white font-bold py-3 rounded-xl transition-colors"
           >
             {checkoutLoading ? '処理中...' : 'カードで支払う'}
           </button>
@@ -231,7 +231,7 @@ export default function BidSection({
         ) : (
           <div className="space-y-2">
             {bids.map((bid, i) => (
-              <div key={bid.id} className={`flex items-center justify-between p-3 rounded-lg ${i === 0 ? 'bg-amber-50 border border-amber-300' : 'bg-white'}`}>
+              <div key={bid.id} className={`flex items-center justify-between p-3 rounded-lg ${i === 0 ? 'bg-[#FBF6EC] border border-[#e5d5a8]' : 'bg-white'}`}>
                 <div className="flex items-center gap-2">
                   {bid.users?.avatar_url ? (
                     <img src={bid.users.avatar_url} alt="" className="w-6 h-6 rounded-full" />
@@ -241,7 +241,7 @@ export default function BidSection({
                     </div>
                   )}
                   <span className="text-sm text-gray-300">{bid.users?.display_name ?? 'Anonymous'}</span>
-                  {i === 0 && <span className="text-xs text-amber-700">最高入札</span>}
+                  {i === 0 && <span className="text-xs text-[#B8902A]">最高入札</span>}
                 </div>
                 <span className="font-semibold text-gray-900">${bid.amount.toLocaleString()}</span>
               </div>

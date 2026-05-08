@@ -22,7 +22,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale}>
-      <body className={`${geist.className} bg-stone-50 text-gray-800 min-h-screen`}>
+      <body className={`${geist.className} bg-[#FAFAF8] text-[#2C2C2C] min-h-screen`}>
         <NextIntlClientProvider messages={messages}>
           <Navbar />
           <main className="max-w-7xl mx-auto px-4 py-8">

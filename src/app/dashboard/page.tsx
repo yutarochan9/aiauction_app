@@ -47,7 +47,7 @@ export default async function DashboardPage() {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900">{t('myListings')}</h2>
-          <Link href="/sell" className="text-sm text-amber-700 hover:text-amber-600">+ 出品する</Link>
+          <Link href="/sell" className="text-sm text-[#B8902A] hover:text-[#B8902A]">+ 出品する</Link>
         </div>
         {!myArtworks?.length ? (
           <p className="text-gray-300 text-sm">出品中の作品はありません</p>
@@ -57,7 +57,7 @@ export default async function DashboardPage() {
               const title = locale === 'ja' ? a.title_ja : a.title_en
               return (
                 <Link key={a.id} href={`/auction/${a.id}`} className="group block">
-                  <div className="bg-white rounded-xl overflow-hidden border border-stone-200 hover:border-amber-500 transition-colors">
+                  <div className="bg-white rounded-xl overflow-hidden border border-stone-200 hover:border-[#B8902A] transition-colors">
                     <div className="aspect-square overflow-hidden bg-stone-100">
                       {a.image_url && (
                         <img
@@ -71,9 +71,9 @@ export default async function DashboardPage() {
                     <div className="p-3">
                       <p className="text-xs text-gray-900 truncate">{title}</p>
                       <span className={`text-xs mt-1 inline-block px-2 py-0.5 rounded-full ${
-                        a.status === 'active' ? 'bg-green-900 text-green-400' :
-                        a.status === 'sold' ? 'bg-amber-50 text-amber-700' :
-                        'bg-stone-100 text-gray-400'
+                        a.status === 'active' ? 'bg-emerald-100 text-emerald-700' :
+                        a.status === 'sold' ? 'bg-[#FBF6EC] text-[#B8902A]' :
+                        'bg-stone-100 text-stone-500'
                       }`}>
                         {a.status === 'active' ? '出品中' : a.status === 'sold' ? '落札済み' : '終了'}
                       </span>
@@ -99,7 +99,7 @@ export default async function DashboardPage() {
               const title = locale === 'ja' ? artwork.title_ja : artwork.title_en
               return (
                 <Link key={artwork.id} href={`/auction/${artwork.id}`}
-                  className="flex items-center gap-4 bg-white rounded-xl p-4 border border-stone-200 hover:border-amber-500 transition-colors"
+                  className="flex items-center gap-4 bg-white rounded-xl p-4 border border-stone-200 hover:border-[#B8902A] transition-colors"
                 >
                   {artwork.image_url && (
                     <img src={artwork.image_url} alt={title} className="w-12 h-12 rounded-lg object-cover pointer-events-none" draggable={false} />
@@ -111,7 +111,7 @@ export default async function DashboardPage() {
                     </p>
                   </div>
                   <span className={`text-xs px-2 py-1 rounded-full ${
-                    artwork.status === 'active' ? 'bg-green-900 text-green-400' : 'bg-stone-100 text-gray-400'
+                    artwork.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-500'
                   }`}>
                     {artwork.status === 'active' ? '進行中' : '終了'}
                   </span>
@@ -144,7 +144,7 @@ export default async function DashboardPage() {
                   {p.download_url && new Date(p.download_expires_at) > new Date() && (
                     <a
                       href={p.download_url}
-                      className="text-xs bg-amber-700 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg transition-colors"
+                      className="text-xs bg-[#2C2C2C] hover:bg-[#3C3C3C] text-white px-3 py-1.5 rounded-lg transition-colors"
                     >
                       ダウンロード
                     </a>

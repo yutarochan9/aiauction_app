@@ -72,7 +72,7 @@ export default function SnsVerifySection({ userId }: { userId: string }) {
           <p className="text-sm text-gray-400">
             以下のコードをX（Twitter）またはInstagramに投稿してください：
           </p>
-          <code className="block bg-stone-100 text-amber-600 px-4 py-2 rounded-lg text-sm font-mono">
+          <code className="block bg-stone-100 text-[#B8902A] px-4 py-2 rounded-lg text-sm font-mono">
             {code}
           </code>
           <p className="text-sm text-gray-400">投稿後、そのURLを貼り付けてください：</p>
@@ -81,12 +81,12 @@ export default function SnsVerifySection({ userId }: { userId: string }) {
             value={snsUrl}
             onChange={(e) => setSnsUrl(e.target.value)}
             placeholder="https://x.com/..."
-            className="w-full bg-stone-100 border border-stone-300 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:border-amber-500"
+            className="w-full bg-stone-100 border border-stone-300 rounded-lg px-3 py-2 text-gray-900 text-sm focus:outline-none focus:border-[#B8902A]"
           />
           {error && <p className="text-red-400 text-xs">{error}</p>}
           <button
             onClick={verify}
-            className="w-full bg-amber-700 hover:bg-amber-600 text-white text-sm py-2 rounded-lg transition-colors"
+            className="w-full bg-[#2C2C2C] hover:bg-[#3C3C3C] text-white text-sm py-2 rounded-lg transition-colors"
           >
             確認する
           </button>

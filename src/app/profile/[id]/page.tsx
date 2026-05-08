@@ -41,7 +41,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
           {profile.avatar_url ? (
             <img src={profile.avatar_url} alt="" className="w-16 h-16 rounded-full" />
           ) : (
-            <div className="w-16 h-16 rounded-full bg-amber-200 flex items-center justify-center text-2xl font-bold">
+            <div className="w-16 h-16 rounded-full bg-[#F5EAD0] flex items-center justify-center text-2xl font-bold">
               {profile.display_name?.[0] ?? '?'}
             </div>
           )}
@@ -88,7 +88,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
             const purchase = artwork.purchases?.[0]
             return (
               <Link key={artwork.id} href={`/auction/${artwork.id}`} className="group block">
-                <div className="bg-white rounded-xl overflow-hidden border border-stone-200 hover:border-amber-500 transition-colors">
+                <div className="bg-white rounded-xl overflow-hidden border border-stone-200 hover:border-[#B8902A] transition-colors">
                   <div className="aspect-square overflow-hidden bg-stone-100">
                     {artwork.image_url ? (
                       <img
@@ -104,7 +104,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                   <div className="p-3">
                     <p className="text-sm text-gray-900 truncate">{title}</p>
                     {artwork.status === 'sold' && purchase && (
-                      <p className="text-xs text-amber-700 mt-1">
+                      <p className="text-xs text-[#B8902A] mt-1">
                         落札 ${purchase.amount?.toLocaleString()}
                       </p>
                     )}

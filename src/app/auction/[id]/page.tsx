@@ -74,11 +74,11 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
               </div>
             )}
             <div>
-              <Link href={`/profile/${artwork.user_id}`} className="font-medium text-gray-900 hover:text-amber-700">
+              <Link href={`/profile/${artwork.user_id}`} className="font-medium text-gray-900 hover:text-[#B8902A]">
                 {seller?.display_name ?? 'Unknown'}
               </Link>
               {seller?.sns_verified && (
-                <span className="ml-2 text-xs bg-blue-600 text-gray-900 px-2 py-0.5 rounded-full">✓ SNS認証済み</span>
+                <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">✓ SNS認証済み</span>
               )}
             </div>
           </div>

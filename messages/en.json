@@ -38,6 +38,7 @@
     "imageHint": "JPG, PNG, WebP supported, max 10MB",
     "startingPrice": "Starting Price (USD)",
     "duration": "Auction Duration",
+    "duration1m": "1 min (test)",
     "duration1h": "1 hour",
     "duration6h": "6 hours",
     "duration24h": "24 hours",

@@ -90,7 +90,7 @@ export default function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-stone-100 border border-stone-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:border-amber-500"
+              className="w-full bg-stone-100 border border-stone-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:border-[#B8902A]"
               required
             />
           </div>
@@ -100,7 +100,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-stone-100 border border-stone-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:border-amber-500"
+              className="w-full bg-stone-100 border border-stone-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:border-[#B8902A]"
               required
               minLength={6}
             />
@@ -112,7 +112,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-amber-700 hover:bg-amber-600 disabled:bg-stone-200 text-white font-semibold py-3 rounded-xl transition-colors"
+            className="w-full bg-[#2C2C2C] hover:bg-[#3C3C3C] disabled:bg-stone-200 text-white font-semibold py-3 rounded-xl transition-colors"
           >
             {loading ? '処理中...' : mode === 'login' ? 'ログイン' : 'アカウント作成'}
           </button>
@@ -125,7 +125,7 @@ export default function LoginPage() {
               onClick={() => setMode('signup')}
               className="w-full py-3 rounded-xl border border-stone-300 text-gray-300 hover:text-gray-900 hover:border-gray-500 transition-colors text-sm"
             >
-              アカウントをお持ちでない方は <span className="text-amber-700 font-medium">新規登録</span>
+              アカウントをお持ちでない方は <span className="text-[#B8902A] font-medium">新規登録</span>
             </button>
           ) : (
             <button
@@ -133,7 +133,7 @@ export default function LoginPage() {
               onClick={() => setMode('login')}
               className="w-full py-3 rounded-xl border border-stone-300 text-gray-300 hover:text-gray-900 hover:border-gray-500 transition-colors text-sm"
             >
-              すでにアカウントをお持ちの方は <span className="text-amber-700 font-medium">ログイン</span>
+              すでにアカウントをお持ちの方は <span className="text-[#B8902A] font-medium">ログイン</span>
             </button>
           )}
         </div>

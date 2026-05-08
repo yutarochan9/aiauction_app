@@ -38,6 +38,7 @@
     "imageHint": "JPG・PNG・WebP対応、最大10MB",
     "startingPrice": "開始価格（USD）",
     "duration": "オークション期間",
+    "duration1m": "1分（テスト用）",
     "duration1h": "1時間",
     "duration6h": "6時間",
     "duration24h": "24時間",

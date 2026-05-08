@@ -41,7 +41,7 @@ export default function Navbar() {
           <img
             src="/aiaii_logo.png"
             alt="AIAII"
-            className="h-9 w-auto object-contain"
+            className="h-16 w-auto object-contain"
             draggable={false}
           />
         </Link>
@@ -82,7 +82,7 @@ export default function Navbar() {
                     className="w-8 h-8 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-amber-700 flex items-center justify-center text-xs font-bold text-white">
+                  <div className="w-8 h-8 rounded-full bg-[#B8902A] flex items-center justify-center text-xs font-bold text-white">
                     {user.email?.[0]?.toUpperCase()}
                   </div>
                 )}
@@ -97,7 +97,7 @@ export default function Navbar() {
           ) : (
             <Link
               href="/auth/login"
-              className="bg-amber-700 hover:bg-amber-600 text-white text-sm px-4 py-2 rounded-lg transition-colors"
+              className="bg-[#2C2C2C] hover:bg-[#3C3C3C] text-white text-sm px-4 py-2 rounded-lg transition-colors"
             >
               {t('login')}
             </Link>

@@ -47,7 +47,7 @@ export default async function HomePage({
         <p className="text-gray-400 text-lg mb-8">{t('subtitle')}</p>
         <Link
           href="/sell"
-          className="bg-amber-700 hover:bg-amber-600 text-white px-8 py-3 rounded-xl font-semibold transition-colors"
+          className="bg-[#2C2C2C] hover:bg-[#3C3C3C] text-white px-8 py-3 rounded-xl font-semibold transition-colors"
         >
           出品する / List Artwork
         </Link>
@@ -61,7 +61,7 @@ export default async function HomePage({
             href={`/?sort=${key}`}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               sort === key
-                ? 'bg-amber-700 text-gray-900'
+                ? 'bg-[#B8902A] text-gray-900'
                 : 'bg-stone-100 text-gray-400 hover:text-gray-900'
             }`}
           >

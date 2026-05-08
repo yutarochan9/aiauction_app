@@ -44,7 +44,7 @@ export default function ArtworkCard({ artwork, locale }: { artwork: Artwork; loc
 
   return (
     <Link href={`/auction/${artwork.id}`} className="group block">
-      <div className="bg-white rounded-xl overflow-hidden border border-stone-200 hover:border-amber-500 transition-colors">
+      <div className="bg-white rounded-xl overflow-hidden border border-stone-200 hover:border-[#B8902A] transition-colors">
         {/* 画像（右クリック・長押し禁止） */}
         <div
           className="aspect-square relative overflow-hidden bg-stone-100"
@@ -77,13 +77,13 @@ export default function ArtworkCard({ artwork, locale }: { artwork: Artwork; loc
           <div className="flex justify-between items-end">
             <div>
               <p className="text-xs text-gray-400 mb-1">{t('currentPrice')}</p>
-              <p className="text-lg font-bold text-amber-700">
+              <p className="text-lg font-bold text-[#B8902A]">
                 ${artwork.current_price.toLocaleString()}
               </p>
             </div>
             <div className="text-right">
               <p className="text-xs text-gray-400">{t('timeLeft')}</p>
-              <p className={`text-sm font-medium ${isEnded ? 'text-gray-400' : 'text-amber-600'}`}>
+              <p className={`text-sm font-medium ${isEnded ? 'text-gray-400' : 'text-[#B8902A]'}`}>
                 {isEnded ? (artwork.status === 'sold' ? t('sold') : t('ended')) : timeLeft}
               </p>
               <p className="text-xs text-gray-300 mt-1">{bidCount} {t('bidCount')}</p>

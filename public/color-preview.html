@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Color Preview</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Georgia', serif; background: #f0ede8; padding: 40px 20px; }
+h2 { text-align: center; margin-bottom: 40px; color: #333; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; max-width: 1200px; margin: 0 auto; }
+.label { text-align: center; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; color: #666; }
+
+/* ===== 案A: ネイビー + シャンパンゴールド ===== */
+.a { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.1); }
+.a-nav { background: #0a0a0a; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+.a-nav .logo { color: #C9A84C; font-size: 22px; font-weight: bold; letter-spacing: 2px; }
+.a-nav .links { display: flex; gap: 20px; }
+.a-nav .links span { color: #999; font-size: 12px; }
+.a-nav .btn { background: #1B2B4B; color: #C9A84C; padding: 6px 16px; border-radius: 6px; font-size: 11px; letter-spacing: 1px; }
+.a-body { padding: 24px; background: #fff; }
+.a-card { background: #fff; border: 1px solid #e8e4de; border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
+.a-img { background: linear-gradient(135deg, #f5f0e8 0%, #ede5d8 100%); height: 140px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
+.a-info { padding: 12px 16px; }
+.a-title { font-size: 13px; color: #1a1a1a; font-weight: 600; margin-bottom: 4px; }
+.a-price { font-size: 20px; color: #1B2B4B; font-weight: bold; margin-bottom: 6px; }
+.a-sub { font-size: 10px; color: #888; margin-bottom: 10px; }
+.a-badge-active { display: inline-block; background: #EEF2FF; color: #1B2B4B; font-size: 10px; padding: 2px 8px; border-radius: 20px; letter-spacing: 0.5px; }
+.a-badge-sold { display: inline-block; background: #FEF9EC; color: #C9A84C; font-size: 10px; padding: 2px 8px; border-radius: 20px; border: 1px solid #C9A84C44; }
+.a-btn { width: 100%; background: #1B2B4B; color: #C9A84C; border: none; padding: 10px; border-radius: 8px; font-size: 12px; letter-spacing: 1px; cursor: pointer; margin-top: 8px; }
+.a-divider { height: 1px; background: #e8e4de; margin: 16px 0; }
+.a-stat { display: flex; justify-content: space-between; align-items: center; }
+.a-stat-label { font-size: 10px; color: #999; letter-spacing: 1px; text-transform: uppercase; }
+.a-stat-val { font-size: 18px; color: #1B2B4B; font-weight: bold; }
+
+/* ===== 案B: チャコール + くすみゴールド ===== */
+.b { background: #FAFAF8; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.1); }
+.b-nav { background: #0a0a0a; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+.b-nav .logo { color: #fff; font-size: 22px; font-weight: bold; letter-spacing: 2px; }
+.b-nav .logo span { color: #B8902A; }
+.b-nav .links span { color: #888; font-size: 12px; margin-left: 20px; }
+.b-nav .btn { background: #B8902A; color: #fff; padding: 6px 16px; border-radius: 6px; font-size: 11px; }
+.b-body { padding: 24px; }
+.b-card { background: #fff; border: 1px solid #e5e0d8; border-radius: 12px; overflow: hidden; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+.b-img { background: linear-gradient(135deg, #f8f3ec 0%, #ede8e0 100%); height: 140px; display: flex; align-items: center; justify-content: center; font-size: 36px; }
+.b-info { padding: 12px 16px; }
+.b-title { font-size: 13px; color: #2C2C2C; font-weight: 600; margin-bottom: 4px; }
+.b-price { font-size: 20px; color: #B8902A; font-weight: bold; margin-bottom: 4px; }
+.b-sub { font-size: 10px; color: #999; margin-bottom: 10px; }
+.b-badge-active { display: inline-block; background: #F0F7F0; color: #3D7A4D; font-size: 10px; padding: 2px 8px; border-radius: 20px; }
+.b-badge-sold { display: inline-block; background: #FBF6EC; color: #B8902A; font-size: 10px; padding: 2px 8px; border-radius: 20px; }
+.b-btn { width: 100%; background: #2C2C2C; color: #fff; border: none; padding: 10px; border-radius: 8px; font-size: 12px; letter-spacing: 1px; cursor: pointer; margin-top: 8px; }
+.b-divider { height: 1px; background: #e5e0d8; margin: 16px 0; }
+.b-stat { display: flex; justify-content: space-between; align-items: center; }
+.b-stat-label { font-size: 10px; color: #999; letter-spacing: 1px; text-transform: uppercase; }
+.b-stat-val { font-size: 18px; color: #2C2C2C; font-weight: bold; }
+
+/* ===== 案C: ブラック + ゴールド ===== */
+.c { background: #0E0E0E; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 32px rgba(0,0,0,0.5); }
+.c-nav { background: #050505; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #222; }
+.c-nav .logo { color: #D4AF37; font-size: 22px; font-weight: bold; letter-spacing: 2px; }
+.c-nav .links span { color: #555; font-size: 12px; margin-left: 20px; }
+.c-nav .btn { border: 1px solid #D4AF37; color: #D4AF37; background: transparent; padding: 6px 16px; border-radius: 6px; font-size: 11px; letter-spacing: 1px; }
+.c-body { padding: 24px; }
+.c-card { background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
+.c-img { background: linear-gradient(135deg, #1e1e1e 0%, #252520 100%); height: 140px; display: flex; align-items: center; justify-content: center; font-size: 36px; border-bottom: 1px solid #2A2A2A; }
+.c-info { padding: 12px 16px; }
+.c-title { font-size: 13px; color: #E8E8E8; font-weight: 600; margin-bottom: 4px; }
+.c-price { font-size: 20px; color: #D4AF37; font-weight: bold; margin-bottom: 4px; }
+.c-sub { font-size: 10px; color: #555; margin-bottom: 10px; }
+.c-badge-active { display: inline-block; background: #1A2A1A; color: #5A9E6A; font-size: 10px; padding: 2px 8px; border-radius: 20px; border: 1px solid #2A4A2A; }
+.c-badge-sold { display: inline-block; background: #2A2000; color: #D4AF37; font-size: 10px; padding: 2px 8px; border-radius: 20px; border: 1px solid #D4AF3733; }
+.c-btn { width: 100%; background: #D4AF37; color: #0E0E0E; border: none; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 700; letter-spacing: 1px; cursor: pointer; margin-top: 8px; }
+.c-divider { height: 1px; background: #2A2A2A; margin: 16px 0; }
+.c-stat { display: flex; justify-content: space-between; align-items: center; }
+.c-stat-label { font-size: 10px; color: #555; letter-spacing: 1px; text-transform: uppercase; }
+.c-stat-val { font-size: 18px; color: #E8E8E8; font-weight: bold; }
+</style>
+</head>
+<body>
+<h2>Color Scheme Preview</h2>
+<div class="grid">
+
+  <!-- 案A -->
+  <div>
+    <div class="label">案A — ネイビー + シャンパンゴールド</div>
+    <div class="a">
+      <div class="a-nav">
+        <div class="logo">AIAII</div>
+        <div class="links">
+          <span>ホーム</span>
+          <span>出品する</span>
+          <span>マイページ</span>
+        </div>
+        <div class="btn">ログイン</div>
+      </div>
+      <div class="a-body">
+        <div class="a-card">
+          <div class="a-img">🎨</div>
+          <div class="a-info">
+            <div class="a-title">Neon Genesis No.7</div>
+            <div class="a-price">$1,240</div>
+            <div class="a-sub">3 bids · 2h 14m left</div>
+            <span class="a-badge-active">出品中</span>
+          </div>
+        </div>
+        <div class="a-card">
+          <div class="a-img">🌌</div>
+          <div class="a-info">
+            <div class="a-title">Void Reflection IV</div>
+            <div class="a-price">$3,800</div>
+            <div class="a-sub">12 bids · Ended</div>
+            <span class="a-badge-sold">落札済み</span>
+            <button class="a-btn">入 札 す る</button>
+          </div>
+        </div>
+        <div class="a-divider"></div>
+        <div class="a-stat">
+          <div>
+            <div class="a-stat-label">Current Bid</div>
+            <div class="a-stat-val">$1,240</div>
+          </div>
+          <div style="text-align:right">
+            <div class="a-stat-label">Time Left</div>
+            <div class="a-stat-val" style="color:#1B2B4B">2h 14m</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 案B -->
+  <div>
+    <div class="label">案B — チャコール + くすみゴールド</div>
+    <div class="b">
+      <div class="b-nav">
+        <div class="logo">AI<span>A</span>II</div>
+        <div>
+          <span class="b-nav links">ホーム</span>
+          <span class="b-nav links">出品する</span>
+          <span class="b-nav links">マイページ</span>
+        </div>
+        <div class="b-btn">ログイン</div>
+      </div>
+      <div class="b-body">
+        <div class="b-card">
+          <div class="b-img">🎨</div>
+          <div class="b-info">
+            <div class="b-title">Neon Genesis No.7</div>
+            <div class="b-price">$1,240</div>
+            <div class="b-sub">3 bids · 2h 14m left</div>
+            <span class="b-badge-active">出品中</span>
+          </div>
+        </div>
+        <div class="b-card">
+          <div class="b-img">🌌</div>
+          <div class="b-info">
+            <div class="b-title">Void Reflection IV</div>
+            <div class="b-price">$3,800</div>
+            <div class="b-sub">12 bids · Ended</div>
+            <span class="b-badge-sold">落札済み</span>
+            <button class="b-btn">入 札 す る</button>
+          </div>
+        </div>
+        <div class="b-divider"></div>
+        <div class="b-stat">
+          <div>
+            <div class="b-stat-label">Current Bid</div>
+            <div class="b-stat-val">$1,240</div>
+          </div>
+          <div style="text-align:right">
+            <div class="b-stat-label">Time Left</div>
+            <div class="b-stat-val">2h 14m</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 案C -->
+  <div>
+    <div class="label">案C — ブラック + ゴールド</div>
+    <div class="c">
+      <div class="c-nav">
+        <div class="logo">AIAII</div>
+        <div>
+          <span style="color:#555;font-size:12px">ホーム</span>
+          <span style="color:#555;font-size:12px;margin-left:16px">出品する</span>
+          <span style="color:#555;font-size:12px;margin-left:16px">マイページ</span>
+        </div>
+        <div class="c-btn">ログイン</div>
+      </div>
+      <div class="c-body">
+        <div class="c-card">
+          <div class="c-img">🎨</div>
+          <div class="c-info">
+            <div class="c-title">Neon Genesis No.7</div>
+            <div class="c-price">$1,240</div>
+            <div class="c-sub">3 bids · 2h 14m left</div>
+            <span class="c-badge-active">出品中</span>
+          </div>
+        </div>
+        <div class="c-card">
+          <div class="c-img">🌌</div>
+          <div class="c-info">
+            <div class="c-title">Void Reflection IV</div>
+            <div class="c-price">$3,800</div>
+            <div class="c-sub">12 bids · Ended</div>
+            <span class="c-badge-sold">落札済み</span>
+            <button class="c-btn">入 札 す る</button>
+          </div>
+        </div>
+        <div class="c-divider"></div>
+        <div class="c-stat">
+          <div>
+            <div class="c-stat-label">Current Bid</div>
+            <div class="c-stat-val">$1,240</div>
+          </div>
+          <div style="text-align:right">
+            <div class="c-stat-label">Time Left</div>
+            <div class="c-stat-val" style="color:#D4AF37">2h 14m</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
