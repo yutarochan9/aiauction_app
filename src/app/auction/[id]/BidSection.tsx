@@ -104,10 +104,10 @@ export default function BidSection({
       if (data.url) {
         window.location.href = data.url
       } else {
-        setMessage(data.error ?? '決済の開始に失敗しました')
+        setMessage(data.error ?? 'Failed to start checkout')
       }
-    } catch {
-      setMessage('An error occurred')
+    } catch (e: any) {
+      setMessage(e?.message ?? 'Network error')
     }
     setCheckoutLoading(false)
   }

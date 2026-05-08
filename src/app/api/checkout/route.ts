@@ -54,30 +54,35 @@ export async function POST(request: NextRequest) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? origin
 
   // Stripeチェックアウトセッション作成
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    payment_method_types: ['card'],
-    line_items: [
-      {
-        price_data: {
-          currency: 'usd',
-          unit_amount: amountCents,
-          product_data: {
-            name: artwork.title_en ?? artwork.title_ja,
-            description: artwork.description_en ?? artwork.description_ja ?? '',
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            unit_amount: amountCents,
+            product_data: {
+              name: artwork.title_en ?? artwork.title_ja,
+              description: artwork.description_en ?? artwork.description_ja ?? '',
+            },
           },
+          quantity: 1,
         },
-        quantity: 1,
+      ],
+      success_url: `${appUrl}/dashboard?payment=success&artwork=${artworkId}`,
+      cancel_url: `${appUrl}/auction/${artworkId}`,
+      metadata: {
+        artwork_id: artworkId,
+        buyer_id: user.id,
+        seller_id: artwork.user_id,
       },
-    ],
-    success_url: `${appUrl}/dashboard?payment=success&artwork=${artworkId}`,
-    cancel_url: `${appUrl}/auction/${artworkId}`,
-    metadata: {
-      artwork_id: artworkId,
-      buyer_id: user.id,
-      seller_id: artwork.user_id,
-    },
-  })
+    })
 
-  return NextResponse.json({ url: session.url })
+    return NextResponse.json({ url: session.url })
+  } catch (e: any) {
+    console.error('Stripe error:', e)
+    return NextResponse.json({ error: e?.message ?? 'Stripe error' }, { status: 500 })
+  }
 }
