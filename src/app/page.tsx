@@ -62,7 +62,7 @@ export default async function HomePage({
             href={`/?sort=${key}`}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               sort === key
-                ? 'bg-[#B8902A] text-gray-900'
+                ? 'bg-[#2C2C2C] text-white'
                 : 'bg-stone-100 text-gray-400 hover:text-gray-900'
             }`}
           >
