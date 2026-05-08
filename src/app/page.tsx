@@ -40,15 +40,11 @@ export default async function HomePage({
   return (
     <div>
       {/* ヒーローセクション */}
-      <div className="text-center py-10 mb-10">
-        <div className="bg-[#0a0a0a] rounded-2xl inline-block px-16 py-6 mb-6">
-          <img
-            src="/aiaii_logo.png"
-            alt="AIAII"
-            className="h-40 w-auto object-contain"
-            draggable={false}
-          />
-        </div>
+      <div className="text-center py-12 mb-10">
+        <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-2">
+          {t('title')}
+        </h1>
+        <p className="text-sm tracking-[0.35em] text-[#B8902A] uppercase font-semibold mb-6">AI Art Auction</p>
         <p className="text-gray-400 text-lg mb-8">{t('subtitle')}</p>
         <Link
           href="/sell"
