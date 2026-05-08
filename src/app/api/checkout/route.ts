@@ -18,12 +18,22 @@ export async function POST(request: NextRequest) {
   // 作品情報取得
   const { data: artwork } = await supabase
     .from('artworks')
-    .select('*, users(email)')
+    .select('*')
     .eq('id', artworkId)
     .single()
 
-  if (!artwork || artwork.status !== 'ended') {
-    return NextResponse.json({ error: 'Artwork not available' }, { status: 400 })
+  if (!artwork) {
+    return NextResponse.json({ error: 'Artwork not found' }, { status: 404 })
+  }
+
+  // 既に落札済みなら拒否
+  if (artwork.status === 'sold') {
+    return NextResponse.json({ error: 'Already sold' }, { status: 400 })
+  }
+
+  // オークション終了前なら拒否
+  if (new Date(artwork.end_at) > new Date()) {
+    return NextResponse.json({ error: 'Auction still running' }, { status: 400 })
   }
 
   // 落札者確認（最高入札者）
@@ -40,10 +50,8 @@ export async function POST(request: NextRequest) {
   }
 
   const amountCents = Math.round(topBid.amount * 100)
-  // 手数料5%をプラットフォームが受け取る
-  const platformFee = Math.round(amountCents * 0.05)
-
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL!
+  const origin = new URL(request.url).origin
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? origin
 
   // Stripeチェックアウトセッション作成
   const session = await stripe.checkout.sessions.create({
@@ -55,18 +63,13 @@ export async function POST(request: NextRequest) {
           currency: 'usd',
           unit_amount: amountCents,
           product_data: {
-            name: artwork.title_en,
-            description: artwork.description_en ?? '',
-            images: artwork.image_url ? [artwork.image_url] : [],
+            name: artwork.title_en ?? artwork.title_ja,
+            description: artwork.description_en ?? artwork.description_ja ?? '',
           },
         },
         quantity: 1,
       },
     ],
-    payment_intent_data: {
-      // アプリケーションフィー（5%）
-      application_fee_amount: platformFee,
-    },
     success_url: `${appUrl}/dashboard?payment=success&artwork=${artworkId}`,
     cancel_url: `${appUrl}/auction/${artworkId}`,
     metadata: {

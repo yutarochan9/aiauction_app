@@ -16,6 +16,7 @@ type Artwork = {
 
 type Bid = {
   id: string
+  user_id: string
   amount: number
   created_at: string
   users: { display_name: string; avatar_url: string | null }
@@ -54,10 +55,14 @@ export default function BidSection({
   const [currentPrice, setCurrentPrice] = useState(artwork.current_price)
   const [bidAmount, setBidAmount] = useState('')
   const [bidding, setBidding] = useState(false)
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [message, setMessage] = useState('')
 
   const isEnded = artwork.status !== 'active' || new Date(artwork.end_at) <= new Date()
   const isOwner = currentUser?.id === artwork.user_id
+  const isSold = artwork.status === 'sold'
+  const topBidder = bids[0]
+  const isWinner = isEnded && !isOwner && currentUser?.id === topBidder?.user_id
   const minBid = currentPrice + 0.01
 
   // Supabase Realtimeでリアルタイム入札更新
@@ -85,6 +90,27 @@ export default function BidSection({
 
     return () => { supabase.removeChannel(channel) }
   }, [artwork.id])
+
+  const handlePurchase = async () => {
+    setCheckoutLoading(true)
+    setMessage('')
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ artworkId: artwork.id }),
+      })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        setMessage(data.error ?? '決済の開始に失敗しました')
+      }
+    } catch {
+      setMessage('エラーが発生しました')
+    }
+    setCheckoutLoading(false)
+  }
 
   const handleBid = async () => {
     const amount = Number(bidAmount)
@@ -169,6 +195,32 @@ export default function BidSection({
         <a href="/auth/login" className="block w-full text-center bg-gray-800 hover:bg-gray-700 text-white py-3 rounded-xl transition-colors">
           ログインして入札する / Login to Bid
         </a>
+      )}
+
+      {/* 落札者向け購入ボタン */}
+      {isWinner && !isSold && (
+        <div className="bg-violet-900/20 border border-violet-700 rounded-xl p-5 space-y-3">
+          <p className="text-violet-300 font-semibold">🎉 おめでとうございます！落札しました</p>
+          <p className="text-gray-400 text-sm">
+            落札額: <span className="text-white font-bold">${currentPrice.toLocaleString()}</span>
+          </p>
+          <button
+            onClick={handlePurchase}
+            disabled={checkoutLoading}
+            className="w-full bg-violet-600 hover:bg-violet-500 disabled:bg-gray-700 text-white font-bold py-3 rounded-xl transition-colors"
+          >
+            {checkoutLoading ? '処理中...' : 'カードで支払う'}
+          </button>
+          {message && (
+            <p className="text-red-400 text-sm">{message}</p>
+          )}
+        </div>
+      )}
+
+      {isSold && isEnded && (
+        <div className="bg-gray-800 rounded-xl p-4 text-center">
+          <p className="text-gray-400 text-sm">この作品は落札済みです</p>
+        </div>
       )}
 
       {/* 入札履歴 */}
