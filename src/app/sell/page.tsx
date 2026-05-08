@@ -1,33 +1,27 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 const DURATIONS = [
-  { value: 1/60, labelKey: 'duration1m' },
-  { value: 1, labelKey: 'duration1h' },
-  { value: 6, labelKey: 'duration6h' },
-  { value: 24, labelKey: 'duration24h' },
-  { value: 72, labelKey: 'duration3d' },
-  { value: 168, labelKey: 'duration7d' },
+  { value: 1/60, label: '1分（テスト用）' },
+  { value: 1,    label: '1時間 / 1 hour' },
+  { value: 6,    label: '6時間 / 6 hours' },
+  { value: 24,   label: '24時間 / 24 hours' },
+  { value: 72,   label: '3日間 / 3 days' },
+  { value: 168,  label: '7日間 / 7 days' },
 ]
 
 export default function SellPage() {
-  const t = useTranslations('sell')
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const [form, setForm] = useState({
-    title_ja: '',
-    title_en: '',
-    description_ja: '',
-    description_en: '',
-    starting_price: '',
-    duration: 24,
-    agreed: false,
-  })
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [startingPrice, setStartingPrice] = useState('')
+  const [duration, setDuration] = useState(24)
+  const [agreed, setAgreed] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -40,43 +34,47 @@ export default function SellPage() {
     setPreview(URL.createObjectURL(f))
   }
 
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    const f = e.dataTransfer.files?.[0]
+    if (!f) return
+    setFile(f)
+    setPreview(URL.createObjectURL(f))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
 
     if (!file) return setError('画像を選択してください')
-    if (!form.agreed) return setError('同意チェックが必要です')
-    if (!form.title_ja || !form.title_en) return setError('タイトルを入力してください')
-    if (!form.starting_price || Number(form.starting_price) <= 0) return setError('開始価格を入力してください')
+    if (!agreed) return setError('同意チェックが必要です')
+    if (!title) return setError('タイトルを入力してください')
+    if (!startingPrice || Number(startingPrice) <= 0) return setError('開始価格を入力してください')
 
     setSubmitting(true)
 
     try {
-      // 画像をアップロード
       const uploadData = new FormData()
       uploadData.append('file', file)
       const uploadRes = await fetch('/api/upload', { method: 'POST', body: uploadData })
       const uploadJson = await uploadRes.json()
-
       if (!uploadRes.ok) throw new Error(uploadJson.error)
 
-      // オークション終了時刻
-      const endAt = new Date(Date.now() + form.duration * 3600 * 1000).toISOString()
+      const endAt = new Date(Date.now() + duration * 3600 * 1000).toISOString()
 
-      // artworksテーブルに登録
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('ログインが必要です')
 
-      const price = Number(form.starting_price)
+      const price = Number(startingPrice)
       const { data, error: dbErr } = await supabase
         .from('artworks')
         .insert({
           user_id: user.id,
-          title_ja: form.title_ja,
-          title_en: form.title_en,
-          description_ja: form.description_ja,
-          description_en: form.description_en,
+          title_ja: title,
+          title_en: title,
+          description_ja: description,
+          description_en: description,
           image_url: uploadJson.imageUrl,
           original_storage_path: uploadJson.originalPath,
           starting_price: price,
@@ -88,7 +86,6 @@ export default function SellPage() {
         .single()
 
       if (dbErr) throw dbErr
-
       router.push(`/auction/${data.id}`)
     } catch (err: any) {
       setError(err.message ?? 'エラーが発生しました')
@@ -98,23 +95,27 @@ export default function SellPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-8">{t('title')}</h1>
+    <div className="max-w-xl mx-auto py-4">
+      <h1 className="text-2xl font-bold text-gray-900 mb-8">出品する / List Artwork</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+
         {/* 画像アップロード */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">{t('image')}</label>
+          <label className="block text-sm font-medium text-gray-600 mb-2">作品画像 / Artwork Image</label>
           <div
-            className="border-2 border-dashed border-stone-300 rounded-xl p-8 text-center cursor-pointer hover:border-[#B8902A] transition-colors"
+            className="border-2 border-dashed border-stone-300 rounded-xl p-8 text-center cursor-pointer hover:border-[#B8902A] transition-colors bg-white"
             onClick={() => fileRef.current?.click()}
+            onDrop={handleDrop}
+            onDragOver={(e) => e.preventDefault()}
           >
             {preview ? (
               <img src={preview} alt="preview" className="max-h-64 mx-auto rounded-lg object-contain" />
             ) : (
               <div className="text-gray-400">
-                <p className="text-4xl mb-2">🖼️</p>
-                <p className="text-sm">{t('imageHint')}</p>
+                <p className="text-4xl mb-3">🖼️</p>
+                <p className="text-sm">クリックまたはドラッグ＆ドロップ</p>
+                <p className="text-xs text-gray-300 mt-1">JPG · PNG · WebP · 最大10MB</p>
               </div>
             )}
           </div>
@@ -128,103 +129,83 @@ export default function SellPage() {
         </div>
 
         {/* タイトル */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">{t('titleJa')}</label>
-            <input
-              type="text"
-              value={form.title_ja}
-              onChange={(e) => setForm({ ...form, title_ja: e.target.value })}
-              className="w-full bg-stone-100 border border-stone-300 rounded-lg px-4 py-2 text-gray-900 focus:outline-none focus:border-[#B8902A]"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">{t('titleEn')}</label>
-            <input
-              type="text"
-              value={form.title_en}
-              onChange={(e) => setForm({ ...form, title_en: e.target.value })}
-              className="w-full bg-stone-100 border border-stone-300 rounded-lg px-4 py-2 text-gray-900 focus:outline-none focus:border-[#B8902A]"
-              required
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-600 mb-1">タイトル / Title</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="例: Neon Genesis No.7"
+            className="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-300 focus:outline-none focus:border-[#B8902A] transition-colors"
+            required
+          />
         </div>
 
         {/* 説明文 */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">{t('descJa')}</label>
-            <textarea
-              value={form.description_ja}
-              onChange={(e) => setForm({ ...form, description_ja: e.target.value })}
-              rows={4}
-              className="w-full bg-stone-100 border border-stone-300 rounded-lg px-4 py-2 text-gray-900 focus:outline-none focus:border-[#B8902A] resize-none"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">{t('descEn')}</label>
-            <textarea
-              value={form.description_en}
-              onChange={(e) => setForm({ ...form, description_en: e.target.value })}
-              rows={4}
-              className="w-full bg-stone-100 border border-stone-300 rounded-lg px-4 py-2 text-gray-900 focus:outline-none focus:border-[#B8902A] resize-none"
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-600 mb-1">説明文 / Description <span className="text-gray-300 font-normal">（任意）</span></label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            placeholder="作品の説明を入力してください..."
+            className="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-300 focus:outline-none focus:border-[#B8902A] transition-colors resize-none"
+          />
         </div>
 
-        {/* 開始価格・期間 */}
+        {/* 価格・期間 */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">{t('startingPrice')}</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">開始価格 / Starting Price</label>
             <div className="relative">
-              <span className="absolute left-3 top-2 text-gray-400">$</span>
+              <span className="absolute left-4 top-3.5 text-gray-400 text-sm">$</span>
               <input
                 type="number"
                 min="1"
                 step="0.01"
-                value={form.starting_price}
-                onChange={(e) => setForm({ ...form, starting_price: e.target.value })}
-                className="w-full bg-stone-100 border border-stone-300 rounded-lg pl-8 pr-4 py-2 text-gray-900 focus:outline-none focus:border-[#B8902A]"
+                value={startingPrice}
+                onChange={(e) => setStartingPrice(e.target.value)}
+                placeholder="0.00"
+                className="w-full bg-white border border-stone-300 rounded-xl pl-8 pr-4 py-3 text-gray-900 placeholder-gray-300 focus:outline-none focus:border-[#B8902A] transition-colors"
                 required
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">{t('duration')}</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">オークション期間</label>
             <select
-              value={form.duration}
-              onChange={(e) => setForm({ ...form, duration: Number(e.target.value) })}
-              className="w-full bg-stone-100 border border-stone-300 rounded-lg px-4 py-2 text-gray-900 focus:outline-none focus:border-[#B8902A]"
+              value={duration}
+              onChange={(e) => setDuration(Number(e.target.value))}
+              className="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-[#B8902A] transition-colors"
             >
-              {DURATIONS.map(({ value, labelKey }) => (
-                <option key={value} value={value}>{t(labelKey as any)}</option>
+              {DURATIONS.map(({ value, label }) => (
+                <option key={value} value={value}>{label}</option>
               ))}
             </select>
           </div>
         </div>
 
-        {/* 同意チェック */}
+        {/* 同意 */}
         <label className="flex items-start gap-3 cursor-pointer">
           <input
             type="checkbox"
-            checked={form.agreed}
-            onChange={(e) => setForm({ ...form, agreed: e.target.checked })}
-            className="mt-1 w-4 h-4 accent-amber-600"
+            checked={agreed}
+            onChange={(e) => setAgreed(e.target.checked)}
+            className="mt-0.5 w-4 h-4 accent-[#B8902A]"
           />
-          <span className="text-sm text-gray-400">{t('agreeCheck')}</span>
+          <span className="text-sm text-gray-500 leading-relaxed">
+            この作品は他サービスで未公開の、私が作成したAIアート作品であることに同意します
+          </span>
         </label>
 
-        {/* エラー表示 */}
-        {error && <p className="text-red-400 text-sm">{error}</p>}
+        {error && <p className="text-red-500 text-sm">{error}</p>}
 
-        {/* 送信ボタン */}
         <button
           type="submit"
           disabled={submitting}
-          className="w-full bg-[#2C2C2C] hover:bg-[#3C3C3C] disabled:bg-stone-200 text-white font-semibold py-3 rounded-xl transition-colors"
+          className="w-full bg-[#2C2C2C] hover:bg-[#3C3C3C] disabled:bg-stone-200 text-white font-semibold py-4 rounded-xl transition-colors text-sm tracking-wide"
         >
-          {submitting ? t('submitting') : t('submit')}
+          {submitting ? '出品中...' : '出品する / List Artwork'}
         </button>
       </form>
     </div>
