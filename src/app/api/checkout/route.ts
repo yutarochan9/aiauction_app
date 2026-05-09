@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-
-// オークション落札後のStripe決済セッション作成
 export async function POST(request: NextRequest) {
+  const key = process.env.STRIPE_SECRET_KEY
+  if (!key) {
+    return NextResponse.json({ error: 'Stripe key not configured' }, { status: 500 })
+  }
+
+  const stripe = new Stripe(key)
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -15,7 +18,6 @@ export async function POST(request: NextRequest) {
 
   const { artworkId } = await request.json()
 
-  // 作品情報取得
   const { data: artwork } = await supabase
     .from('artworks')
     .select('*')
@@ -26,17 +28,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Artwork not found' }, { status: 404 })
   }
 
-  // 既に落札済みなら拒否
   if (artwork.status === 'sold') {
     return NextResponse.json({ error: 'Already sold' }, { status: 400 })
   }
 
-  // オークション終了前なら拒否
   if (new Date(artwork.end_at) > new Date()) {
     return NextResponse.json({ error: 'Auction still running' }, { status: 400 })
   }
 
-  // 落札者確認（Top Bid者）
   const { data: topBid } = await supabase
     .from('bids')
     .select('user_id, amount')
@@ -53,7 +52,6 @@ export async function POST(request: NextRequest) {
   const origin = new URL(request.url).origin
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? origin
 
-  // Stripeチェックアウトセッション作成
   try {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
