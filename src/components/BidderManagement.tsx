@@ -12,7 +12,6 @@ type Bid = {
 }
 
 export default function BidderManagement({
-  artworkId,
   bids: initialBids,
   blockedUserIds: initialBlocked = [],
 }: {
@@ -20,11 +19,9 @@ export default function BidderManagement({
   bids: Bid[]
   blockedUserIds?: string[]
 }) {
-  const [bids, setBids] = useState(initialBids)
+  const [bids] = useState(initialBids)
   const [blocked, setBlocked] = useState<Set<string>>(new Set(initialBlocked))
-  const [cancelling, setCancelling] = useState<string | null>(null)
   const [blocking, setBlocking] = useState<string | null>(null)
-  const [confirmId, setConfirmId] = useState<string | null>(null)
   const [message, setMessage] = useState('')
 
   const topBidPerUser = Object.values(
@@ -35,29 +32,6 @@ export default function BidderManagement({
       return acc
     }, {})
   ).sort((a, b) => b.amount - a.amount)
-
-  const handleCancel = async (bid: Bid) => {
-    setCancelling(bid.id)
-    setMessage('')
-    try {
-      const res = await fetch('/api/cancel-bid', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bidId: bid.id, artworkId }),
-      })
-      const data = await res.json()
-      if (data.success) {
-        setBids((prev) => prev.filter((b) => b.user_id !== bid.user_id))
-        setMessage(`Removed bid by ${bid.users?.display_name ?? 'user'}`)
-      } else {
-        setMessage(data.error ?? 'Failed')
-      }
-    } catch {
-      setMessage('Network error')
-    }
-    setCancelling(null)
-    setConfirmId(null)
-  }
 
   const handleBlock = async (userId: string, name: string) => {
     setBlocking(userId)
@@ -75,7 +49,7 @@ export default function BidderManagement({
           isBlocked ? next.delete(userId) : next.add(userId)
           return next
         })
-        setMessage(isBlocked ? `Unblocked ${name}` : `Blocked ${name} from all your auctions`)
+        setMessage(isBlocked ? `Unblocked ${name}` : `Blocked ${name} from future auctions`)
       } else {
         setMessage(data.error ?? 'Failed')
       }
@@ -88,7 +62,7 @@ export default function BidderManagement({
   if (topBidPerUser.length === 0) {
     return (
       <div className="bg-white rounded-xl p-5 border border-stone-200">
-        <h3 className="text-sm font-semibold text-gray-900 mb-2">Bidder Management</h3>
+        <h3 className="text-sm font-semibold text-gray-900 mb-2">Bidders</h3>
         <p className="text-gray-300 text-sm">No bidders yet</p>
       </div>
     )
@@ -97,11 +71,11 @@ export default function BidderManagement({
   return (
     <div className="bg-white rounded-xl p-5 border border-stone-200 space-y-3">
       <h3 className="text-sm font-semibold text-gray-900">
-        Bidder Management
-        <span className="ml-2 text-gray-400 font-normal">({topBidPerUser.length} bidders)</span>
+        Bidders
+        <span className="ml-2 text-gray-400 font-normal">({topBidPerUser.length})</span>
       </h3>
       <p className="text-xs text-gray-400">
-        Remove a bid or block a user from all your future auctions.
+        Block a user to hide your future listings from them.
       </p>
 
       <div className="space-y-2">
@@ -130,53 +104,24 @@ export default function BidderManagement({
                 <p className="text-xs text-gray-400">${bid.amount.toLocaleString()}</p>
               </div>
 
-              <div className="flex items-center gap-2">
-                {/* ブロック/アンブロック */}
-                <button
-                  onClick={() => handleBlock(bid.user_id, bid.users?.display_name ?? 'user')}
-                  disabled={blocking === bid.user_id}
-                  className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
-                    isBlocked
-                      ? 'bg-red-50 text-red-500 hover:bg-red-100 border border-red-200'
-                      : 'bg-stone-100 text-gray-500 hover:bg-stone-200'
-                  }`}
-                >
-                  {blocking === bid.user_id ? '...' : isBlocked ? 'Unblock' : 'Block'}
-                </button>
-
-                {/* 入札キャンセル */}
-                {confirmId === bid.id ? (
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => handleCancel(bid)}
-                      disabled={cancelling === bid.id}
-                      className="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
-                    >
-                      {cancelling === bid.id ? '...' : 'Confirm'}
-                    </button>
-                    <button
-                      onClick={() => setConfirmId(null)}
-                      className="text-xs bg-stone-200 hover:bg-stone-300 text-gray-600 px-2 py-1.5 rounded-lg"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setConfirmId(bid.id)}
-                    className="text-xs text-red-400 hover:text-red-600 border border-red-200 hover:border-red-400 px-3 py-1.5 rounded-lg transition-colors"
-                  >
-                    Remove bid
-                  </button>
-                )}
-              </div>
+              <button
+                onClick={() => handleBlock(bid.user_id, bid.users?.display_name ?? 'user')}
+                disabled={blocking === bid.user_id}
+                className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
+                  isBlocked
+                    ? 'bg-red-50 text-red-500 hover:bg-red-100 border border-red-200'
+                    : 'bg-stone-100 text-gray-500 hover:bg-stone-200'
+                }`}
+              >
+                {blocking === bid.user_id ? '...' : isBlocked ? 'Unblock' : 'Block'}
+              </button>
             </div>
           )
         })}
       </div>
 
       {message && (
-        <p className={`text-xs ${message.includes('Blocked') || message.includes('Removed') || message.includes('Unblocked') ? 'text-green-500' : 'text-red-400'}`}>
+        <p className={`text-xs ${message.includes('Blocked') || message.includes('Unblocked') ? 'text-green-500' : 'text-red-400'}`}>
           {message}
         </p>
       )}

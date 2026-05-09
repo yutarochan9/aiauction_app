@@ -65,6 +65,30 @@ export default async function HomePage({
 
   const { data: artworks } = await query
 
+  // ブラックリストフィルタリング：自分をブロックしている出品者の作品を非表示
+  // ただし現在入札中のものは表示したまま
+  const { data: { user } } = await supabase.auth.getUser()
+  let filteredArtworks = artworks ?? []
+  if (user && filteredArtworks.length > 0) {
+    const { data: blacklists } = await supabase
+      .from('blacklists')
+      .select('seller_id')
+      .eq('blocked_user_id', user.id)
+    const blockedSellerIds = new Set(blacklists?.map(b => b.seller_id) ?? [])
+
+    if (blockedSellerIds.size > 0) {
+      const { data: myBids } = await supabase
+        .from('bids')
+        .select('artwork_id')
+        .eq('user_id', user.id)
+      const myBidArtworkIds = new Set(myBids?.map(b => b.artwork_id) ?? [])
+
+      filteredArtworks = filteredArtworks.filter(artwork =>
+        !blockedSellerIds.has(artwork.user_id) || myBidArtworkIds.has(artwork.id)
+      )
+    }
+  }
+
   const buildUrl = (overrides: Record<string, string>) => {
     const p: Record<string, string> = { status: statusFilter, sort, ...overrides }
     if (q) p.q = q
@@ -138,11 +162,11 @@ export default async function HomePage({
       </div>
 
       {/* 作品一覧 */}
-      {!artworks || artworks.length === 0 ? (
+      {filteredArtworks.length === 0 ? (
         <div className="text-center py-24 text-gray-400">{emptyMessage}</div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {artworks.map((artwork) => (
+          {filteredArtworks.map((artwork) => (
             <ArtworkCard key={artwork.id} artwork={artwork as any} locale={locale} />
           ))}
         </div>
