@@ -241,39 +241,45 @@ export default function SellPage() {
 
         {/* 予約投稿 */}
         <div className="border border-stone-200 rounded-xl p-4 space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-medium text-gray-600">Schedule Auction</p>
               <p className="text-xs text-gray-400 mt-0.5">Set a future date to start the auction</p>
             </div>
+            {/* トグル */}
             <button
               type="button"
               onClick={() => setScheduled(!scheduled)}
-              className={`relative w-11 h-6 rounded-full transition-colors shrink-0 overflow-hidden ${scheduled ? 'bg-[#B8902A]' : 'bg-stone-200'}`}
+              role="switch"
+              aria-checked={scheduled}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${scheduled ? 'bg-[#B8902A]' : 'bg-stone-200'}`}
             >
-              <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${scheduled ? 'translate-x-6' : 'translate-x-1'}`} />
+              <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-200 ${scheduled ? 'translate-x-5' : 'translate-x-0'}`} />
             </button>
           </div>
           {scheduled && (
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Date</label>
+                <label className="block text-xs text-gray-500 mb-1">Date <span className="text-gray-300">(YYYY-MM-DD)</span></label>
                 <input
-                  type="date"
+                  type="text"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  min={new Date().toISOString().slice(0, 10)}
-                  className="w-full bg-white border border-stone-300 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#B8902A] transition-colors text-sm"
+                  placeholder={new Date().toISOString().slice(0, 10)}
+                  pattern="\d{4}-\d{2}-\d{2}"
+                  className="w-full bg-white border border-stone-300 rounded-xl px-3 py-2.5 text-gray-900 placeholder-gray-300 focus:outline-none focus:border-[#B8902A] transition-colors text-sm"
                   required={scheduled}
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Time</label>
+                <label className="block text-xs text-gray-500 mb-1">Time <span className="text-gray-300">(HH:MM)</span></label>
                 <input
-                  type="time"
+                  type="text"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="w-full bg-white border border-stone-300 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#B8902A] transition-colors text-sm"
+                  placeholder="12:00"
+                  pattern="\d{2}:\d{2}"
+                  className="w-full bg-white border border-stone-300 rounded-xl px-3 py-2.5 text-gray-900 placeholder-gray-300 focus:outline-none focus:border-[#B8902A] transition-colors text-sm"
                   required={scheduled}
                 />
               </div>
