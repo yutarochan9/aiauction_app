@@ -1,7 +1,8 @@
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM = 'AIAII <noreply@aiaii.art>'
+const FROM = process.env.RESEND_FROM ?? 'AIAII <onboarding@resend.dev>'
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://aiauction-app.vercel.app'
 
 export async function sendOutbidEmail(to: string, artworkTitle: string, newAmount: number, artworkId: string) {
   await resend.emails.send({
@@ -14,7 +15,7 @@ export async function sendOutbidEmail(to: string, artworkTitle: string, newAmoun
         <p style="color:#555;font-size:15px;margin-bottom:24px;">
           Someone placed a higher bid of <strong>$${newAmount.toLocaleString()}</strong> on <strong>${artworkTitle}</strong>.
         </p>
-        <a href="https://aiauction-app.vercel.app/auction/${artworkId}"
+        <a href="${BASE_URL}/auction/${artworkId}"
           style="display:inline-block;background:#2C2C2C;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">
           Bid Again
         </a>
@@ -34,7 +35,7 @@ export async function sendNewBidEmail(to: string, artworkTitle: string, amount: 
         <p style="color:#555;font-size:15px;margin-bottom:24px;">
           <strong>${bidderName}</strong> placed a bid of <strong>$${amount.toLocaleString()}</strong> on <strong>${artworkTitle}</strong>.
         </p>
-        <a href="https://aiauction-app.vercel.app/auction/${artworkId}"
+        <a href="${BASE_URL}/auction/${artworkId}"
           style="display:inline-block;background:#2C2C2C;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">
           View Auction
         </a>
@@ -55,7 +56,7 @@ export async function sendPaymentReceivedEmail(to: string, artworkTitle: string,
           Your artwork <strong>${artworkTitle}</strong> has been sold for <strong>$${amount.toLocaleString()}</strong>.
           The payment has been processed successfully.
         </p>
-        <a href="https://aiauction-app.vercel.app/auction/${artworkId}"
+        <a href="${BASE_URL}/auction/${artworkId}"
           style="display:inline-block;background:#2C2C2C;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">
           View Artwork
         </a>
@@ -76,7 +77,7 @@ export async function sendWonAuctionEmail(to: string, artworkTitle: string, amou
           You won <strong>${artworkTitle}</strong> with a bid of <strong>$${amount.toLocaleString()}</strong>.
           Please complete your payment within 72 hours.
         </p>
-        <a href="https://aiauction-app.vercel.app/auction/${artworkId}"
+        <a href="${BASE_URL}/auction/${artworkId}"
           style="display:inline-block;background:#B8902A;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">
           Complete Purchase
         </a>
