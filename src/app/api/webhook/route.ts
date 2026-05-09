@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     if (artErr) console.error('[webhook] artwork update error:', artErr)
     else console.log('[webhook] artwork', artwork_id, 'marked as sold')
 
-    // 購入履歴を記録（テーブルがなければスキップ）
+    // 購入履歴を記録
     const { error: purchaseErr } = await supabase.from('purchases').insert({
       artwork_id,
       buyer_id,
@@ -67,6 +67,16 @@ export async function POST(request: NextRequest) {
 
     if (purchaseErr) console.error('[webhook] purchase insert error:', purchaseErr.message)
     else console.log('[webhook] purchase recorded')
+
+    // セカンドチャンスオファーの場合はステータスを更新
+    const secondChanceOfferId = session.metadata?.second_chance_offer_id
+    if (secondChanceOfferId) {
+      await supabase
+        .from('second_chance_offers')
+        .update({ status: 'accepted' })
+        .eq('id', secondChanceOfferId)
+      console.log('[webhook] second chance offer', secondChanceOfferId, 'accepted')
+    }
   }
 
   return NextResponse.json({ received: true })

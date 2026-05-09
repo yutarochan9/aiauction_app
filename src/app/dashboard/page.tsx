@@ -3,6 +3,8 @@ import { getTranslations, getLocale } from 'next-intl/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import ReviewForm from '@/components/ReviewForm'
+import UnpaidSection from '@/components/UnpaidSection'
+import SecondChanceSection from '@/components/SecondChanceSection'
 
 export default async function DashboardPage() {
   const t = await getTranslations('dashboard')
@@ -12,12 +14,22 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
+  const now = new Date().toISOString()
+
   // 自分の出品作品
   const { data: myArtworks } = await supabase
     .from('artworks')
     .select('*')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
+
+  // 未払い（終了済みだが未売却）の出品作品
+  const { data: unpaidArtworks } = await supabase
+    .from('artworks')
+    .select('*, bids(user_id, amount, users(display_name))')
+    .eq('user_id', user.id)
+    .eq('status', 'active')
+    .lt('end_at', now)
 
   // 自分が入札中のオークション
   const { data: myBids } = await supabase
@@ -30,7 +42,7 @@ export default async function DashboardPage() {
     ? Array.from(new Map(myBids.map((b) => [(b.artworks as any)?.id, b])).values())
     : []
 
-  // 自分の落札作品（出品者情報も取得）
+  // 自分の落札作品
   const { data: myPurchases } = await supabase
     .from('purchases')
     .select('*, artworks(id, title_ja, title_en, image_url, user_id)')
@@ -45,9 +57,27 @@ export default async function DashboardPage() {
 
   const reviewedPurchaseIds = new Set(myReviews?.map((r) => r.purchase_id) ?? [])
 
+  // 自分へのセカンドチャンスオファー（pending かつ期限内）
+  const { data: secondChanceOffers } = await supabase
+    .from('second_chance_offers')
+    .select('*, artworks(id, title_ja, title_en, image_url)')
+    .eq('offered_to_id', user.id)
+    .eq('status', 'pending')
+    .gt('expires_at', now)
+
   return (
     <div className="max-w-5xl mx-auto space-y-12">
       <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
+
+      {/* セカンドチャンスオファー */}
+      {secondChanceOffers && secondChanceOffers.length > 0 && (
+        <SecondChanceSection offers={secondChanceOffers as any} locale={locale} />
+      )}
+
+      {/* 未払い報告セクション */}
+      {unpaidArtworks && unpaidArtworks.length > 0 && (
+        <UnpaidSection artworks={unpaidArtworks as any} locale={locale} />
+      )}
 
       {/* 自分の出品作品 */}
       <section>
@@ -72,11 +102,11 @@ export default async function DashboardPage() {
                     <div className="p-3">
                       <p className="text-xs text-gray-900 truncate">{title}</p>
                       <span className={`text-xs mt-1 inline-block px-2 py-0.5 rounded-full ${
-                        a.status === 'active' ? 'bg-[#F0F7F0] text-[#3D7A4D]' :
-                        a.status === 'sold'   ? 'bg-[#FBF6EC] text-[#B8902A]' :
+                        a.status === 'active' && new Date(a.end_at) > new Date() ? 'bg-[#F0F7F0] text-[#3D7A4D]' :
+                        a.status === 'sold' ? 'bg-[#FBF6EC] text-[#B8902A]' :
                         'bg-stone-100 text-stone-500'
                       }`}>
-                        {a.status === 'active' ? 'Live' : a.status === 'sold' ? 'Sold' : 'Closed'}
+                        {a.status === 'sold' ? 'Sold' : new Date(a.end_at) > new Date() ? 'Live' : 'Closed'}
                       </span>
                     </div>
                   </div>
@@ -110,9 +140,11 @@ export default async function DashboardPage() {
                     <p className="text-gray-400 text-xs">Current bid: ${artwork.current_price?.toLocaleString()}</p>
                   </div>
                   <span className={`text-xs px-2 py-1 rounded-full ${
-                    artwork.status === 'active' ? 'bg-[#F0F7F0] text-[#3D7A4D]' : 'bg-stone-100 text-stone-500'
+                    artwork.status === 'active' && new Date(artwork.end_at) > new Date()
+                      ? 'bg-[#F0F7F0] text-[#3D7A4D]'
+                      : 'bg-stone-100 text-stone-500'
                   }`}>
-                    {artwork.status === 'active' ? 'Live' : 'Closed'}
+                    {artwork.status === 'active' && new Date(artwork.end_at) > new Date() ? 'Live' : 'Closed'}
                   </span>
                 </Link>
               )
@@ -148,8 +180,6 @@ export default async function DashboardPage() {
                       </Link>
                     )}
                   </div>
-
-                  {/* 評価フォーム（未レビューのみ表示） */}
                   {!alreadyReviewed && artwork?.user_id && (
                     <ReviewForm
                       purchaseId={p.id}
