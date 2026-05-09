@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { sendOutbidEmail, sendNewBidEmail } from '@/lib/email'
+import { sendPushToUser } from '@/lib/push'
+
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://aiauction-app.vercel.app'
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -72,6 +75,7 @@ export async function POST(request: NextRequest) {
     if (outbidUser?.user?.email) {
       sendOutbidEmail(outbidUser.user.email, title, numAmount, artworkId).catch(() => {})
     }
+    sendPushToUser(previousTopBidderId, 'You\'ve been outbid', `Someone bid $${numAmount.toLocaleString()} on "${title}"`, `${BASE_URL}/auction/${artworkId}`).catch(() => {})
   }
 
   // 出品者へ新規入札メール

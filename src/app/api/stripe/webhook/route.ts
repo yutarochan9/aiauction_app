@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import { sendPaymentReceivedEmail, sendWonAuctionEmail } from '@/lib/email'
+import { sendPushToUser } from '@/lib/push'
+
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://aiauction-app.vercel.app'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
@@ -96,6 +99,10 @@ async function handleEvent(event: Stripe.Event) {
     if (buyerData?.user?.email) {
       sendWonAuctionEmail(buyerData.user.email, title, amountPaid, artwork_id).catch(() => {})
     }
+    if (seller_id) {
+      sendPushToUser(seller_id, 'Payment received', `"${title}" sold for $${amountPaid.toLocaleString()}`, `${BASE_URL}/auction/${artwork_id}`).catch(() => {})
+    }
+    sendPushToUser(buyer_id, 'You won!', `Congratulations! You won "${title}"`, `${BASE_URL}/auction/${artwork_id}`).catch(() => {})
   }
 
   return NextResponse.json({ received: true })
