@@ -5,13 +5,21 @@ import SearchFilter from '@/components/SearchFilter'
 import Link from 'next/link'
 
 type SortKey = 'new' | 'ending' | 'price'
-type StatusFilter = 'active' | 'ended' | 'upcoming'
+type StatusFilter = 'live' | 'closed' | 'upcoming'
 
-const STATUS_TABS: { key: StatusFilter; label: string }[] = [
-  { key: 'active',   label: '進行中' },
-  { key: 'ended',    label: '終了' },
-  { key: 'upcoming', label: '販売予定' },
+// ステータスタブ定義（順序：Upcoming → Live → Closed）
+const STATUS_TABS: { key: StatusFilter; label: string; dot: string }[] = [
+  { key: 'upcoming', label: 'Upcoming',  dot: 'bg-gray-400' },
+  { key: 'live',     label: 'Live',      dot: 'bg-green-400' },
+  { key: 'closed',   label: 'Closed',    dot: 'bg-red-400' },
 ]
+
+// ステータスごとに表示するソートオプション
+const SORT_OPTIONS: Record<StatusFilter, { key: SortKey; label: string }[]> = {
+  upcoming: [{ key: 'new', label: 'Newest' }],
+  live:     [{ key: 'new', label: 'Newest' }, { key: 'ending', label: 'Ending Soon' }, { key: 'price', label: 'Price' }],
+  closed:   [{ key: 'new', label: 'Newest' }, { key: 'price', label: 'Price' }],
+}
 
 export default async function HomePage({
   searchParams,
@@ -19,21 +27,24 @@ export default async function HomePage({
   searchParams: Promise<{ sort?: string; q?: string; tag?: string; status?: string }>
 }) {
   const params = await searchParams
-  const sort = (params.sort ?? 'new') as SortKey
   const q = params.q ?? ''
   const tag = params.tag ?? ''
-  const statusFilter = (params.status ?? 'active') as StatusFilter
+  const statusFilter = (params.status ?? 'live') as StatusFilter
+  const supabase = await createClient()
   const t = await getTranslations('home')
   const locale = await getLocale()
-  const supabase = await createClient()
   const now = new Date().toISOString()
+
+  // 有効なソートキーかチェック（ステータスが変わったとき無効なソートをリセット）
+  const validSorts = SORT_OPTIONS[statusFilter].map(o => o.key)
+  const sort = (validSorts.includes(params.sort as SortKey) ? params.sort : validSorts[0]) as SortKey
 
   const orderMap: Record<SortKey, { column: string; ascending: boolean }> = {
     new:    { column: 'created_at',    ascending: false },
     ending: { column: 'end_at',        ascending: true },
     price:  { column: 'current_price', ascending: true },
   }
-  const { column, ascending } = orderMap[sort] ?? orderMap.new
+  const { column, ascending } = orderMap[sort]
 
   let query = supabase
     .from('artworks')
@@ -41,13 +52,11 @@ export default async function HomePage({
     .order(column, { ascending })
     .limit(48)
 
-  if (statusFilter === 'active') {
+  if (statusFilter === 'live') {
     query = query.eq('status', 'active').gt('end_at', now)
-  } else if (statusFilter === 'ended') {
-    // sold または end_at が過ぎたもの
+  } else if (statusFilter === 'closed') {
     query = query.or(`status.eq.sold,and(status.eq.active,end_at.lte.${now})`)
-  } else if (statusFilter === 'upcoming') {
-    // 将来的にscheduledステータスを使う想定（今は空）
+  } else {
     query = query.eq('status', 'scheduled')
   }
 
@@ -56,20 +65,19 @@ export default async function HomePage({
 
   const { data: artworks } = await query
 
-  const sortLabels: Record<SortKey, string> = {
-    new:    t('sortNew'),
-    ending: t('sortEndingSoon'),
-    price:  t('sortPrice'),
-  }
-
   const buildUrl = (overrides: Record<string, string>) => {
-    const p = { sort, q, tag, status: statusFilter, ...overrides }
-    const qs = Object.entries(p)
-      .filter(([, v]) => v)
-      .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
-      .join('&')
+    const p: Record<string, string> = { status: statusFilter, sort, ...overrides }
+    if (q) p.q = q
+    if (tag) p.tag = tag
+    const qs = Object.entries(p).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&')
     return `/?${qs}`
   }
+
+  const emptyMessage = statusFilter === 'upcoming'
+    ? 'No upcoming auctions yet'
+    : statusFilter === 'closed'
+    ? 'No closed auctions'
+    : t('noArtworks')
 
   return (
     <div>
@@ -91,45 +99,47 @@ export default async function HomePage({
       {/* 検索・タグフィルター */}
       <SearchFilter currentQ={q} currentTag={tag} currentSort={sort} />
 
-      {/* ステータスタブ */}
-      <div className="flex gap-2 mb-5">
-        {STATUS_TABS.map(({ key, label }) => (
-          <Link
-            key={key}
-            href={buildUrl({ status: key })}
-            className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${
-              statusFilter === key
-                ? 'bg-[#B8902A] text-white'
-                : 'bg-stone-100 text-gray-400 hover:text-gray-900'
-            }`}
-          >
-            {label}
-          </Link>
-        ))}
-      </div>
+      {/* ステータスタブ＋ソートを1行に */}
+      <div className="flex items-center justify-between mb-8">
+        {/* ステータスタブ */}
+        <div className="flex gap-2">
+          {STATUS_TABS.map(({ key, label, dot }) => (
+            <Link
+              key={key}
+              href={buildUrl({ status: key })}
+              className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold transition-colors ${
+                statusFilter === key
+                  ? 'bg-[#2C2C2C] text-white'
+                  : 'bg-stone-100 text-gray-400 hover:text-gray-900'
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full ${statusFilter === key ? dot : 'bg-gray-300'}`} />
+              {label}
+            </Link>
+          ))}
+        </div>
 
-      {/* ソートタブ */}
-      <div className="flex gap-3 mb-8">
-        {(Object.keys(sortLabels) as SortKey[]).map((key) => (
-          <Link
-            key={key}
-            href={buildUrl({ sort: key })}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              sort === key
-                ? 'bg-[#2C2C2C] text-white'
-                : 'bg-stone-100 text-gray-400 hover:text-gray-900'
-            }`}
-          >
-            {sortLabels[key]}
-          </Link>
-        ))}
+        {/* ソートオプション */}
+        <div className="flex gap-2">
+          {SORT_OPTIONS[statusFilter].map(({ key, label }) => (
+            <Link
+              key={key}
+              href={buildUrl({ sort: key })}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                sort === key
+                  ? 'bg-[#B8902A] text-white'
+                  : 'bg-stone-100 text-gray-400 hover:text-gray-900'
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* 作品一覧 */}
       {!artworks || artworks.length === 0 ? (
-        <div className="text-center py-24 text-gray-400">
-          {statusFilter === 'upcoming' ? '販売予定の作品はまだありません' : q || tag ? 'No artworks found' : t('noArtworks')}
-        </div>
+        <div className="text-center py-24 text-gray-400">{emptyMessage}</div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {artworks.map((artwork) => (

@@ -88,13 +88,13 @@ export default function ArtworkCard({ artwork, locale }: { artwork: Artwork; loc
             {bidCount} {t('bidCount')} · {isEnded ? (artwork.status === 'sold' ? t('sold') : t('ended')) : timeLeft}
           </p>
           <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-            artwork.status === 'active'
-              ? 'bg-[#F0F7F0] text-[#3D7A4D]'
-              : artwork.status === 'sold'
+            isSold
               ? 'bg-[#FBF6EC] text-[#B8902A]'
-              : 'bg-stone-100 text-stone-500'
+              : isEnded
+              ? 'bg-stone-100 text-stone-500'
+              : 'bg-[#F0F7F0] text-[#3D7A4D]'
           }`}>
-            {artwork.status === 'active' ? 'Active' : artwork.status === 'sold' ? 'Sold' : 'Ended'}
+            {isSold ? 'Sold' : isEnded ? 'Closed' : 'Live'}
           </span>
           {artwork.tags && artwork.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
