@@ -1,24 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import Stripe from 'stripe'
 
 export async function POST(request: NextRequest) {
   const key = process.env.STRIPE_SECRET_KEY
   if (!key) {
+    console.error('[checkout] STRIPE_SECRET_KEY is not set')
     return NextResponse.json({ error: 'Stripe key not configured' }, { status: 500 })
   }
 
-  console.log('Stripe key prefix:', key.substring(0, 12), 'suffix:', key.substring(key.length - 6), 'len:', key.length)
+  console.log('[checkout] key prefix:', key.substring(0, 12), 'len:', key.length)
 
-  const stripe = new Stripe(key)
   const supabase = await createClient()
-
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { artworkId } = await request.json()
+  console.log('[checkout] artworkId:', artworkId, 'userId:', user.id)
 
   const { data: artwork } = await supabase
     .from('artworks')
@@ -53,36 +52,44 @@ export async function POST(request: NextRequest) {
   const amountCents = Math.round(topBid.amount * 100)
   const origin = new URL(request.url).origin
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? origin
+  const productName = artwork.title_en ?? artwork.title_ja ?? 'Artwork'
+
+  console.log('[checkout] amount cents:', amountCents, 'appUrl:', appUrl)
+
+  const params = new URLSearchParams()
+  params.append('mode', 'payment')
+  params.append('payment_method_types[0]', 'card')
+  params.append('line_items[0][price_data][currency]', 'usd')
+  params.append('line_items[0][price_data][unit_amount]', String(amountCents))
+  params.append('line_items[0][price_data][product_data][name]', productName)
+  params.append('line_items[0][quantity]', '1')
+  params.append('success_url', `${appUrl}/dashboard?payment=success&artwork=${artworkId}`)
+  params.append('cancel_url', `${appUrl}/auction/${artworkId}`)
+  params.append('metadata[artwork_id]', artworkId)
+  params.append('metadata[buyer_id]', user.id)
+  params.append('metadata[seller_id]', artwork.user_id)
 
   try {
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            unit_amount: amountCents,
-            product_data: {
-              name: artwork.title_en ?? artwork.title_ja,
-              description: artwork.description_en ?? artwork.description_ja ?? '',
-            },
-          },
-          quantity: 1,
-        },
-      ],
-      success_url: `${appUrl}/dashboard?payment=success&artwork=${artworkId}`,
-      cancel_url: `${appUrl}/auction/${artworkId}`,
-      metadata: {
-        artwork_id: artworkId,
-        buyer_id: user.id,
-        seller_id: artwork.user_id,
+    const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${key}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
+      body: params.toString(),
     })
 
-    return NextResponse.json({ url: session.url })
+    const stripeData = await stripeRes.json()
+    console.log('[checkout] stripe status:', stripeRes.status, 'url:', stripeData?.url ?? stripeData?.error?.message)
+
+    if (!stripeRes.ok) {
+      console.error('[checkout] stripe error body:', JSON.stringify(stripeData))
+      return NextResponse.json({ error: stripeData?.error?.message ?? 'Stripe error' }, { status: 500 })
+    }
+
+    return NextResponse.json({ url: stripeData.url })
   } catch (e: any) {
-    console.error('Stripe error:', e)
-    return NextResponse.json({ error: e?.message ?? 'Stripe error' }, { status: 500 })
+    console.error('[checkout] fetch error:', e?.message)
+    return NextResponse.json({ error: e?.message ?? 'Network error' }, { status: 500 })
   }
 }
