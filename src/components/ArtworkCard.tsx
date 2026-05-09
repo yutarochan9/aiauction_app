@@ -41,7 +41,8 @@ export default function ArtworkCard({ artwork, locale }: { artwork: Artwork; loc
   const timeLeft = useCountdown(artwork.end_at)
   const title = locale === 'ja' ? artwork.title_ja : artwork.title_en
   const bidCount = artwork.bids?.[0]?.count ?? 0
-  const isEnded = artwork.status !== 'active'
+  const isEnded = artwork.status !== 'active' || new Date(artwork.end_at) <= new Date()
+  const isSold = artwork.status === 'sold'
 
   return (
     <Link href={`/auction/${artwork.id}`} className="group block">
@@ -64,10 +65,15 @@ export default function ArtworkCard({ artwork, locale }: { artwork: Artwork; loc
             </div>
           )}
           {isEnded && (
-            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-              <span className="text-gray-900 font-bold text-lg">
-                {artwork.status === 'sold' ? t('sold') : t('ended')}
-              </span>
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center overflow-hidden">
+              <div className={`
+                px-8 py-2 rotate-[-30deg] font-black text-2xl tracking-widest border-4 select-none
+                ${isSold
+                  ? 'text-red-500 border-red-500'
+                  : 'text-gray-300 border-gray-300'}
+              `}>
+                {isSold ? 'SOLD' : 'ENDED'}
+              </div>
             </div>
           )}
         </div>

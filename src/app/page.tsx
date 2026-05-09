@@ -30,6 +30,7 @@ export default async function HomePage({
     .from('artworks')
     .select('*, bids(count)')
     .eq('status', 'active')
+    .gt('end_at', new Date().toISOString())
     .order(column, { ascending })
     .limit(48)
 
