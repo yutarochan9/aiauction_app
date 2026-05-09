@@ -28,6 +28,8 @@ export default function SellPage() {
   const [error, setError] = useState('')
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
+  const [scheduled, setScheduled] = useState(false)
+  const [startAt, setStartAt] = useState('')
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
@@ -62,6 +64,8 @@ export default function SellPage() {
     if (!agreed) return setError('Please agree to the terms')
     if (!title) return setError('Please enter a title')
     if (!startingPrice || Number(startingPrice) <= 0) return setError('Please enter a starting price')
+    if (scheduled && !startAt) return setError('Please set a start date/time')
+    if (scheduled && new Date(startAt) <= new Date()) return setError('Start time must be in the future')
 
     setSubmitting(true)
 
@@ -72,7 +76,8 @@ export default function SellPage() {
       const uploadJson = await uploadRes.json()
       if (!uploadRes.ok) throw new Error(uploadJson.error)
 
-      const endAt = new Date(Date.now() + duration * 3600 * 1000).toISOString()
+      const startTime = scheduled ? new Date(startAt) : new Date()
+      const endAt = new Date(startTime.getTime() + duration * 3600 * 1000).toISOString()
 
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
@@ -91,8 +96,9 @@ export default function SellPage() {
           original_storage_path: uploadJson.originalPath,
           starting_price: price,
           current_price: price,
+          start_at: startTime.toISOString(),
           end_at: endAt,
-          status: 'active',
+          status: scheduled ? 'scheduled' : 'active',
           tags,
         })
         .select()
@@ -230,6 +236,36 @@ export default function SellPage() {
           </div>
         </div>
 
+        {/* 予約投稿 */}
+        <div className="border border-stone-200 rounded-xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Schedule Auction</p>
+              <p className="text-xs text-gray-400 mt-0.5">Set a future date to start the auction</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setScheduled(!scheduled)}
+              className={`relative w-11 h-6 rounded-full transition-colors ${scheduled ? 'bg-[#B8902A]' : 'bg-stone-200'}`}
+            >
+              <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${scheduled ? 'translate-x-6' : 'translate-x-1'}`} />
+            </button>
+          </div>
+          {scheduled && (
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Start Date & Time</label>
+              <input
+                type="datetime-local"
+                value={startAt}
+                onChange={(e) => setStartAt(e.target.value)}
+                min={new Date(Date.now() + 60000).toISOString().slice(0, 16)}
+                className="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-[#B8902A] transition-colors text-sm"
+                required={scheduled}
+              />
+            </div>
+          )}
+        </div>
+
         {/* 同意 */}
         <label className="flex items-start gap-3 cursor-pointer">
           <input
@@ -250,7 +286,7 @@ export default function SellPage() {
           disabled={submitting}
           className="w-full bg-[#2C2C2C] hover:bg-[#3C3C3C] disabled:bg-stone-200 text-white font-semibold py-4 rounded-xl transition-colors text-sm tracking-wide"
         >
-          {submitting ? 'Listing...' : 'List Artwork'}
+          {submitting ? 'Listing...' : scheduled ? 'Schedule Auction' : 'List Artwork'}
         </button>
       </form>
     </div>

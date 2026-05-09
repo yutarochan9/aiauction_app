@@ -12,6 +12,7 @@ type Artwork = {
   image_url: string | null
   current_price: number
   starting_price: number
+  start_at: string | null
   end_at: string
   status: string
   tags: string[] | null
@@ -61,7 +62,8 @@ export default function ArtworkCard({
   const timeLeft = useCountdown(artwork.end_at)
   const title = locale === 'ja' ? artwork.title_ja : artwork.title_en
   const bidCount = artwork.bids?.[0]?.count ?? 0
-  const isEnded = artwork.status !== 'active' || new Date(artwork.end_at) <= new Date()
+  const isScheduled = artwork.status === 'scheduled'
+  const isEnded = !isScheduled && (artwork.status !== 'active' || new Date(artwork.end_at) <= new Date())
   const isSold = artwork.status === 'sold'
   const isHold = artwork.status === 'active' && new Date(artwork.end_at) <= new Date()
 
@@ -174,9 +176,11 @@ export default function ArtworkCard({
                 ? 'bg-amber-50 text-amber-600'
                 : isEnded
                 ? 'bg-stone-100 text-stone-500'
+                : isScheduled
+                ? 'bg-blue-50 text-blue-500'
                 : 'bg-[#F0F7F0] text-[#3D7A4D]'
             }`}>
-              {isSold ? 'Sold' : isHold ? 'Hold' : isEnded ? 'Closed' : 'Live'}
+              {isSold ? 'Sold' : isHold ? 'Hold' : isEnded ? 'Closed' : isScheduled ? 'Scheduled' : 'Live'}
             </span>
             <button
               onClick={handleLike}
