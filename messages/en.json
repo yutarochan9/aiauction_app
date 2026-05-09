@@ -61,7 +61,8 @@
     "title": "Dashboard",
     "myListings": "My Listings",
     "myBids": "Active Bids",
-    "myPurchases": "Purchases"
+    "myPurchases": "Purchases",
+    "mySales": "Sales"
   },
   "common": {
     "loading": "Loading...",

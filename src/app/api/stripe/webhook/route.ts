@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
+import { sendPaymentReceivedEmail, sendWonAuctionEmail } from '@/lib/email'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
@@ -75,6 +76,25 @@ async function handleEvent(event: Stripe.Event) {
     if (error) {
       console.error('Failed to create purchase record:', error)
       return NextResponse.json({ error: 'DB error' }, { status: 500 })
+    }
+
+    // 作品タイトル取得してメール送信
+    const { data: artwork } = await supabaseAdmin
+      .from('artworks')
+      .select('title_en, title_ja')
+      .eq('id', artwork_id)
+      .single()
+    const title = artwork?.title_en || artwork?.title_ja || 'Artwork'
+
+    const [{ data: sellerData }, { data: buyerData }] = await Promise.all([
+      seller_id ? supabaseAdmin.auth.admin.getUserById(seller_id) : Promise.resolve({ data: null }),
+      supabaseAdmin.auth.admin.getUserById(buyer_id),
+    ])
+    if (sellerData?.user?.email) {
+      sendPaymentReceivedEmail(sellerData.user.email, title, amountPaid, artwork_id).catch(() => {})
+    }
+    if (buyerData?.user?.email) {
+      sendWonAuctionEmail(buyerData.user.email, title, amountPaid, artwork_id).catch(() => {})
     }
   }
 

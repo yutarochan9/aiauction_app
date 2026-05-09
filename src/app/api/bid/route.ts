@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { sendOutbidEmail, sendNewBidEmail } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -56,15 +57,34 @@ export async function POST(request: NextRequest) {
 
   await admin.from('artworks').update({ current_price: numAmount }).eq('id', artworkId)
 
-  // 上書き通知
+  const title = artwork.title_en || artwork.title_ja || 'an artwork'
+
+  // 上書き通知（アプリ内 + メール）
   if (previousTopBidderId) {
-    const title = artwork.title_en || artwork.title_ja || 'an artwork'
     await admin.from('notifications').insert({
       user_id: previousTopBidderId,
       type: 'outbid',
       message: `You've been outbid on "${title}"`,
       artwork_id: artworkId,
     })
+    // outbidメール
+    const { data: outbidUser } = await admin.auth.admin.getUserById(previousTopBidderId)
+    if (outbidUser?.user?.email) {
+      sendOutbidEmail(outbidUser.user.email, title, numAmount, artworkId).catch(() => {})
+    }
+  }
+
+  // 出品者へ新規入札メール
+  const { data: sellerUser } = await admin.auth.admin.getUserById(artwork.user_id)
+  const { data: bidderProfile } = await admin.from('users').select('display_name').eq('id', user.id).single()
+  if (sellerUser?.user?.email) {
+    sendNewBidEmail(
+      sellerUser.user.email,
+      title,
+      numAmount,
+      (bidderProfile as any)?.display_name ?? 'Someone',
+      artworkId
+    ).catch(() => {})
   }
 
   return NextResponse.json({ success: true, newPrice: numAmount })

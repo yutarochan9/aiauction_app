@@ -49,6 +49,14 @@ export default async function DashboardPage() {
     .eq('buyer_id', user.id)
     .order('created_at', { ascending: false })
 
+  // 売上（自分が出品して購入された作品）
+  const { data: mySales } = await supabase
+    .from('purchases')
+    .select('*, artworks(id, title_ja, title_en, image_url)')
+    .eq('seller_id', user.id)
+    .order('created_at', { ascending: false })
+  const totalRevenue = mySales?.reduce((sum, s) => sum + (s.amount ?? 0), 0) ?? 0
+
   // 自分が書いたレビューのpurchase_idリスト
   const { data: myReviews } = await supabase
     .from('reviews')
@@ -147,6 +155,40 @@ export default async function DashboardPage() {
                     {artwork.status === 'active' && new Date(artwork.end_at) > new Date() ? 'Live' : 'Closed'}
                   </span>
                 </Link>
+              )
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* 売上管理 */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gray-900">{t('mySales')}</h2>
+          {totalRevenue > 0 && (
+            <span className="text-sm font-semibold text-[#B8902A]">
+              Total: ${totalRevenue.toLocaleString()}
+            </span>
+          )}
+        </div>
+        {!mySales?.length ? (
+          <p className="text-gray-300 text-sm">No sales yet</p>
+        ) : (
+          <div className="space-y-3">
+            {mySales.map((s) => {
+              const artwork = s.artworks as any
+              const title = artwork ? (locale === 'ja' ? artwork.title_ja : artwork.title_en) : 'Unknown'
+              return (
+                <div key={s.id} className="flex items-center gap-4 bg-white rounded-xl p-4 border border-stone-200">
+                  {artwork?.image_url && (
+                    <img src={artwork.image_url} alt={title} className="w-12 h-12 rounded-lg object-cover pointer-events-none" draggable={false} />
+                  )}
+                  <div className="flex-1">
+                    <p className="text-gray-900 text-sm font-medium">{title}</p>
+                    <p className="text-gray-400 text-xs">{new Date(s.created_at).toLocaleDateString()}</p>
+                  </div>
+                  <span className="text-sm font-semibold text-[#B8902A]">${s.amount?.toLocaleString()}</span>
+                </div>
               )
             })}
           </div>

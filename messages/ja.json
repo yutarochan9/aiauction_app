@@ -59,9 +59,10 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "myListings": "My Listings",
-    "myBids": "Active Bids",
-    "myPurchases": "Purchases"
+    "myListings": "出品中",
+    "myBids": "入札中",
+    "myPurchases": "落札済み",
+    "mySales": "売上管理"
   },
   "common": {
     "loading": "Loading...",
