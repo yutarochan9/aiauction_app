@@ -47,12 +47,14 @@ export default function BidSection({
   currentUser,
   isBlacklisted = false,
   isLiked: initialIsLiked = false,
+  initialLikesCount = 0,
 }: {
   artwork: Artwork
   bids: Bid[]
   currentUser: User | null
   isBlacklisted?: boolean
   isLiked?: boolean
+  initialLikesCount?: number
 }) {
   const t = useTranslations('auction')
   const timeLeft = useCountdown(artwork.end_at)
@@ -65,18 +67,25 @@ export default function BidSection({
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [liked, setLiked] = useState(initialIsLiked)
+  const [likesCount, setLikesCount] = useState(initialLikesCount)
 
   const handleLike = async () => {
-    setLiked(prev => !prev)
+    const next = !liked
+    setLiked(next)
+    setLikesCount(prev => next ? prev + 1 : prev - 1)
     try {
       const res = await fetch('/api/like', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ artworkId: artwork.id }),
       })
-      if (res.status === 401) setLiked(prev => !prev)
+      if (res.status === 401) {
+        setLiked(!next)
+        setLikesCount(prev => next ? prev - 1 : prev + 1)
+      }
     } catch {
-      setLiked(prev => !prev)
+      setLiked(!next)
+      setLikesCount(prev => next ? prev - 1 : prev + 1)
     }
   }
 
@@ -196,6 +205,7 @@ export default function BidSection({
               <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
             {liked ? 'Liked' : 'Like'}
+            {likesCount > 0 && <span className="text-xs text-gray-400">{likesCount}</span>}
           </button>
         </div>
       </div>

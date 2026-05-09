@@ -48,7 +48,7 @@ export default async function HomePage({
 
   let query = supabase
     .from('artworks')
-    .select('*, bids(count)')
+    .select('*, bids(count), likes(count)')
     .order(column, { ascending })
     .limit(48)
 

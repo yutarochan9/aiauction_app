@@ -15,6 +15,7 @@ type Artwork = {
   status: string
   tags: string[] | null
   bids: { count: number }[]
+  likes: { count: number }[]
 }
 
 function HeartIcon({ filled }: { filled: boolean }) {
@@ -63,11 +64,14 @@ export default function ArtworkCard({
   const isHold = artwork.status === 'active' && new Date(artwork.end_at) <= new Date()
 
   const [liked, setLiked] = useState(initialIsLiked)
+  const [likeCount, setLikeCount] = useState(artwork.likes?.[0]?.count ?? 0)
 
   const handleLike = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setLiked(prev => !prev)
+    const next = !liked
+    setLiked(next)
+    setLikeCount(prev => next ? prev + 1 : prev - 1)
     try {
       const res = await fetch('/api/like', {
         method: 'POST',
@@ -75,11 +79,13 @@ export default function ArtworkCard({
         body: JSON.stringify({ artworkId: artwork.id }),
       })
       if (res.status === 401) {
-        setLiked(prev => !prev)
+        setLiked(!next)
+        setLikeCount(prev => next ? prev - 1 : prev + 1)
         window.location.href = '/auth/login'
       }
     } catch {
-      setLiked(prev => !prev)
+      setLiked(!next)
+      setLikeCount(prev => next ? prev - 1 : prev + 1)
     }
   }
 
@@ -104,17 +110,6 @@ export default function ArtworkCard({
             </div>
           )}
 
-          {/* ハートいいねボタン */}
-          <button
-            onClick={handleLike}
-            className={`absolute top-2 right-2 z-10 p-1.5 rounded-full backdrop-blur-sm transition-all ${
-              liked
-                ? 'bg-white/90 text-red-500'
-                : 'bg-black/20 text-white/70 hover:text-red-400 opacity-0 group-hover:opacity-100'
-            }`}
-          >
-            <HeartIcon filled={liked} />
-          </button>
           {isEnded && (
             <div className="absolute inset-0 flex items-center justify-center overflow-hidden"
               style={{ background: isSold ? 'rgba(0,0,0,0.45)' : isHold ? 'rgba(0,0,0,0.38)' : 'rgba(0,0,0,0.55)' }}
@@ -166,17 +161,28 @@ export default function ArtworkCard({
           <p className="text-xs text-gray-400 mb-3">
             {bidCount} {t('bidCount')} · {isEnded ? (isSold ? t('sold') : isHold ? 'On hold' : t('ended')) : timeLeft}
           </p>
-          <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-            isSold
-              ? 'bg-[#FBF6EC] text-[#B8902A]'
-              : isHold
-              ? 'bg-amber-50 text-amber-600'
-              : isEnded
-              ? 'bg-stone-100 text-stone-500'
-              : 'bg-[#F0F7F0] text-[#3D7A4D]'
-          }`}>
-            {isSold ? 'Sold' : isHold ? 'On Hold' : isEnded ? 'Closed' : 'Live'}
-          </span>
+          <div className="flex items-center justify-between">
+            <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+              isSold
+                ? 'bg-[#FBF6EC] text-[#B8902A]'
+                : isHold
+                ? 'bg-amber-50 text-amber-600'
+                : isEnded
+                ? 'bg-stone-100 text-stone-500'
+                : 'bg-[#F0F7F0] text-[#3D7A4D]'
+            }`}>
+              {isSold ? 'Sold' : isHold ? 'On Hold' : isEnded ? 'Closed' : 'Live'}
+            </span>
+            <button
+              onClick={handleLike}
+              className={`flex items-center gap-1 text-xs transition-colors ${
+                liked ? 'text-red-500' : 'text-gray-300 hover:text-red-400'
+              }`}
+            >
+              <HeartIcon filled={liked} />
+              {likeCount > 0 && <span>{likeCount}</span>}
+            </button>
+          </div>
           {artwork.tags && artwork.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
               {artwork.tags.slice(0, 2).map((tag) => (

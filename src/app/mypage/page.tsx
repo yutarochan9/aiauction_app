@@ -47,7 +47,7 @@ export default async function MyPage({
     if (artworkIds.length > 0) {
       const { data } = await supabase
         .from('artworks')
-        .select('*, bids(count)')
+        .select('*, bids(count), likes(count)')
         .in('id', artworkIds)
         .eq('status', 'active')
         .gt('end_at', now)
@@ -58,7 +58,7 @@ export default async function MyPage({
   } else if (tab === 'selling') {
     const { data } = await supabase
       .from('artworks')
-      .select('*, bids(count)')
+      .select('*, bids(count), likes(count)')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
     artworks = data ?? []
@@ -66,7 +66,7 @@ export default async function MyPage({
   } else if (tab === 'won') {
     const { data: purchases } = await supabase
       .from('purchases')
-      .select('artwork_id, artworks(*, bids(count))')
+      .select('artwork_id, artworks(*, bids(count), likes(count))')
       .eq('buyer_id', user.id)
       .order('created_at', { ascending: false })
     artworks = purchases?.map(p => p.artworks).filter(Boolean) ?? []
@@ -74,7 +74,7 @@ export default async function MyPage({
   } else if (tab === 'liked') {
     const { data: likes } = await supabase
       .from('likes')
-      .select('artwork_id, artworks(*, bids(count))')
+      .select('artwork_id, artworks(*, bids(count), likes(count))')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
     artworks = likes?.map(l => l.artworks).filter(Boolean) ?? []

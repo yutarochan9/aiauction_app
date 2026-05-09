@@ -31,8 +31,12 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
   // ログイン中のユーザー
   const { data: { user } } = await supabase.auth.getUser()
 
-  // いいね状態確認
+  // いいね状態・数確認
   let isLiked = false
+  const { count: likesCount } = await supabase
+    .from('likes')
+    .select('*', { count: 'exact', head: true })
+    .eq('artwork_id', id)
   if (user) {
     const { data: likeCheck } = await supabase
       .from('likes')
@@ -132,6 +136,7 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
             currentUser={user}
             isBlacklisted={isBlacklisted}
             isLiked={isLiked}
+            initialLikesCount={likesCount ?? 0}
           />
 
           {/* 出品者向け：入札者管理（進行中のみ表示） */}
