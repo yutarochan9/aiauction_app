@@ -129,7 +129,7 @@ export default function ArtworkCard({
                     ? '2px solid rgba(210,160,20,0.75)'
                     : '2px solid rgba(255,255,255,0.5)',
                   backdropFilter: 'blur(4px)',
-                  letterSpacing: isHold ? '0.28em' : '0.38em',
+                  letterSpacing: '0.38em',
                 }}
               >
                 <span
@@ -143,7 +143,7 @@ export default function ArtworkCard({
                     textShadow: '0 1px 4px rgba(0,0,0,0.5)',
                   }}
                 >
-                  {isSold ? 'SOLD' : isHold ? 'ON HOLD' : 'ENDED'}
+                  {isSold ? 'SOLD' : isHold ? 'HOLD' : 'ENDED'}
                 </span>
               </div>
             </div>
@@ -173,7 +173,7 @@ export default function ArtworkCard({
                 ? 'bg-stone-100 text-stone-500'
                 : 'bg-[#F0F7F0] text-[#3D7A4D]'
             }`}>
-              {isSold ? 'Sold' : isHold ? 'On Hold' : isEnded ? 'Closed' : 'Live'}
+              {isSold ? 'Sold' : isHold ? 'Hold' : isEnded ? 'Closed' : 'Live'}
             </span>
             <button
               onClick={handleLike}
