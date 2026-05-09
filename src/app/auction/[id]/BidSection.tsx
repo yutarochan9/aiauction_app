@@ -12,6 +12,7 @@ type Artwork = {
   end_at: string
   status: string
   user_id: string
+  [key: string]: any
 }
 
 type Bid = {
@@ -45,11 +46,13 @@ export default function BidSection({
   bids: initialBids,
   currentUser,
   isBlacklisted = false,
+  isLiked: initialIsLiked = false,
 }: {
   artwork: Artwork
   bids: Bid[]
   currentUser: User | null
   isBlacklisted?: boolean
+  isLiked?: boolean
 }) {
   const t = useTranslations('auction')
   const timeLeft = useCountdown(artwork.end_at)
@@ -61,6 +64,21 @@ export default function BidSection({
   const [bidding, setBidding] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const [liked, setLiked] = useState(initialIsLiked)
+
+  const handleLike = async () => {
+    setLiked(prev => !prev)
+    try {
+      const res = await fetch('/api/like', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ artworkId: artwork.id }),
+      })
+      if (res.status === 401) setLiked(prev => !prev)
+    } catch {
+      setLiked(prev => !prev)
+    }
+  }
 
   const isEnded = artwork.status !== 'active' || new Date(artwork.end_at) <= new Date()
   const isOwner = currentUser?.id === artwork.user_id
@@ -151,17 +169,34 @@ export default function BidSection({
   return (
     <div className="space-y-6">
       {/* 現在価格・残り時間 */}
-      <div className="bg-white rounded-xl p-5 border border-stone-200 grid grid-cols-2 gap-4">
-        <div>
-          <p className="text-xs text-gray-400 mb-1">{t('currentPrice')}</p>
-          <p className="text-3xl font-bold text-[#B8902A]">${currentPrice.toLocaleString()}</p>
-          <p className="text-xs text-gray-300 mt-1">{bids.length} {t('bidCount')}</p>
+      <div className="bg-white rounded-xl p-5 border border-stone-200">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-xs text-gray-400 mb-1">{t('currentPrice')}</p>
+            <p className="text-3xl font-bold text-[#B8902A]">${currentPrice.toLocaleString()}</p>
+            <p className="text-xs text-gray-300 mt-1">
+              Starting ${artwork.starting_price.toLocaleString()} · {bids.length} {t('bidCount')}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-gray-400 mb-1">{t('timeLeft')}</p>
+            <p className={`text-2xl font-bold ${isEnded ? 'text-gray-400' : 'text-[#B8902A]'}`}>
+              {isEnded ? t('ended') : timeLeft}
+            </p>
+          </div>
         </div>
-        <div className="text-right">
-          <p className="text-xs text-gray-400 mb-1">{t('timeLeft')}</p>
-          <p className={`text-2xl font-bold ${isEnded ? 'text-gray-400' : 'text-[#B8902A]'}`}>
-            {isEnded ? t('ended') : timeLeft}
-          </p>
+        <div className="mt-3 pt-3 border-t border-stone-100 flex items-center justify-between">
+          <button
+            onClick={handleLike}
+            className={`flex items-center gap-1.5 text-sm transition-colors ${
+              liked ? 'text-red-500' : 'text-gray-400 hover:text-red-400'
+            }`}
+          >
+            <svg className="w-5 h-5" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+            {liked ? 'Liked' : 'Like'}
+          </button>
         </div>
       </div>
 

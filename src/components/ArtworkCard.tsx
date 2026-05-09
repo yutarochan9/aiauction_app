@@ -10,6 +10,7 @@ type Artwork = {
   title_en: string
   image_url: string | null
   current_price: number
+  starting_price: number
   end_at: string
   status: string
   tags: string[] | null
@@ -156,8 +157,11 @@ export default function ArtworkCard({
         {/* 情報 */}
         <div className="p-4">
           <h3 className="font-semibold text-gray-900 truncate mb-3">{title}</h3>
-          <p className="text-lg font-bold text-[#B8902A] mb-1">
+          <p className="text-lg font-bold text-[#B8902A]">
             ${artwork.current_price.toLocaleString()}
+          </p>
+          <p className="text-xs text-gray-300 mb-1">
+            Starting ${artwork.starting_price.toLocaleString()}
           </p>
           <p className="text-xs text-gray-400 mb-3">
             {bidCount} {t('bidCount')} · {isEnded ? (isSold ? t('sold') : isHold ? 'On hold' : t('ended')) : timeLeft}
