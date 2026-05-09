@@ -253,29 +253,48 @@ export default function BidSection({
 
       {/* 落札者向け購入ボタン */}
       {isWinner && !isSold && (
-        <div className="bg-[#FBF6EC] border border-[#B8902A] rounded-xl p-5 space-y-3">
-          <p className="text-[#B8902A] font-semibold">🎉 Congratulations! You won!</p>
-          <p className="text-gray-400 text-sm">
-            Winning bid: <span className="text-gray-900 font-bold">${(bids[0]?.amount ?? currentPrice).toLocaleString()}</span>
-          </p>
-          <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-            <span className="text-amber-500 text-sm">⏰</span>
+        <div className="relative overflow-hidden rounded-2xl border border-[#C9A84C] p-6 space-y-4"
+          style={{ background: 'linear-gradient(135deg, #1a1a1a 0%, #2a2218 100%)' }}>
+          {/* 装飾ライン */}
+          <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, #C9A84C, transparent)' }} />
+          <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, #C9A84C44, transparent)' }} />
+
+          {/* タイトル */}
+          <div className="space-y-1">
+            <p className="text-[10px] tracking-[0.3em] text-[#C9A84C] uppercase font-medium">Auction Result</p>
+            <p className="text-white text-lg font-semibold tracking-wide">Congratulations on your win.</p>
+          </div>
+
+          {/* 落札金額 */}
+          <div className="flex items-baseline gap-2 border-t border-white/10 pt-4">
+            <span className="text-xs text-gray-500 tracking-wider uppercase">Winning Bid</span>
+            <span className="text-2xl font-bold text-white ml-auto">${(bids[0]?.amount ?? currentPrice).toLocaleString()}</span>
+          </div>
+
+          {/* 支払期限 */}
+          <div className="flex items-center justify-between rounded-lg px-4 py-3"
+            style={{ background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.25)' }}>
             <div>
-              <p className="text-xs text-amber-700 font-medium">Payment deadline</p>
-              <p className="text-xs text-amber-600">
-                {deadlineCountdown === 'Ended' ? 'Deadline passed' : `${deadlineCountdown} remaining`}
+              <p className="text-[10px] tracking-[0.2em] text-[#C9A84C] uppercase">Payment Deadline</p>
+              <p className="text-sm text-white/70 mt-0.5">
+                {deadlineCountdown === 'Ended' ? 'Deadline has passed' : `${deadlineCountdown} remaining`}
               </p>
             </div>
+            <svg className="w-5 h-5 text-[#C9A84C] opacity-70" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9" /><path strokeLinecap="round" d="M12 7v5l3 3" />
+            </svg>
           </div>
+
           <button
             onClick={handlePurchase}
             disabled={checkoutLoading}
-            className="w-full bg-[#2C2C2C] hover:bg-[#3C3C3C] disabled:bg-stone-200 text-white font-bold py-3 rounded-xl transition-colors"
+            className="w-full disabled:opacity-40 text-[#1a1a1a] font-semibold py-3 rounded-xl tracking-wide transition-opacity text-sm"
+            style={{ background: 'linear-gradient(90deg, #C9A84C, #e8c96a, #C9A84C)' }}
           >
-            {checkoutLoading ? 'Processing...' : 'Pay with Card'}
+            {checkoutLoading ? 'Processing…' : 'Complete Purchase'}
           </button>
           {message && (
-            <p className="text-red-400 text-sm">{message}</p>
+            <p className="text-red-400 text-xs">{message}</p>
           )}
         </div>
       )}
