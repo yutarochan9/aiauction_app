@@ -4,20 +4,22 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import ArtworkCard from '@/components/ArtworkCard'
 
-type Tab = 'bidding' | 'selling' | 'won' | 'liked'
+type Tab = 'bidding' | 'selling' | 'won' | 'liked' | 'following'
 
 const TABS: { key: Tab; label: string }[] = [
-  { key: 'bidding', label: 'Bidding' },
-  { key: 'selling', label: 'Selling' },
-  { key: 'won',     label: 'Won' },
-  { key: 'liked',   label: 'Liked' },
+  { key: 'bidding',   label: 'Bidding' },
+  { key: 'selling',   label: 'Selling' },
+  { key: 'won',       label: 'Won' },
+  { key: 'liked',     label: 'Liked' },
+  { key: 'following', label: 'Following' },
 ]
 
 const EMPTY: Record<Tab, string> = {
-  bidding: "You're not bidding on anything right now",
-  selling: 'No listings yet',
-  won:     'No won items yet',
-  liked:   'No liked artworks yet',
+  bidding:   "You're not bidding on anything right now",
+  selling:   'No listings yet',
+  won:       'No won items yet',
+  liked:     'No liked artworks yet',
+  following: "Follow artists to see their new listings here",
 }
 
 export default async function MyPage({
@@ -78,6 +80,22 @@ export default async function MyPage({
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
     artworks = likes?.map(l => l.artworks).filter(Boolean) ?? []
+
+  } else if (tab === 'following') {
+    const { data: followList } = await supabase
+      .from('follows')
+      .select('following_id')
+      .eq('follower_id', user.id)
+    const sellerIds = followList?.map(f => f.following_id) ?? []
+    if (sellerIds.length > 0) {
+      const { data } = await supabase
+        .from('artworks')
+        .select('*, bids(count), likes(count)')
+        .in('user_id', sellerIds)
+        .in('status', ['active', 'scheduled'])
+        .order('created_at', { ascending: false })
+      artworks = data ?? []
+    }
   }
 
   // ハートボタン表示用のいいね済みIDセット

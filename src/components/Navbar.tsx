@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useEffect, useState } from 'react'
 import type { User } from '@supabase/supabase-js'
+import NotificationBell from './NotificationBell'
 
 export default function Navbar() {
   const t = useTranslations('nav')
@@ -62,6 +63,9 @@ export default function Navbar() {
               </Link>
             </>
           )}
+
+          {/* 通知ベル */}
+          <NotificationBell user={user} />
 
           {/* 言語切り替え */}
           <button

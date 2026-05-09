@@ -3,6 +3,7 @@ import { getTranslations, getLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import SnsVerifySection from './SnsVerifySection'
+import FollowButton from '@/components/FollowButton'
 
 export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -44,6 +45,23 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
   const { data: { user } } = await supabase.auth.getUser()
   const isOwn = user?.id === id
 
+  // フォロワー数・フォロー状態
+  const { count: followerCount } = await supabase
+    .from('follows')
+    .select('*', { count: 'exact', head: true })
+    .eq('following_id', id)
+
+  let isFollowing = false
+  if (user && !isOwn) {
+    const { data: followCheck } = await supabase
+      .from('follows')
+      .select('id')
+      .eq('follower_id', user.id)
+      .eq('following_id', id)
+      .single()
+    isFollowing = !!followCheck
+  }
+
   return (
     <div className="max-w-4xl mx-auto">
       {/* プロフィールヘッダー */}
@@ -78,6 +96,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
               <span className="text-gray-400">
                 <span className="text-gray-900 font-semibold">{soldCount}</span> sold
               </span>
+              <span className="text-gray-400">
+                <span className="text-gray-900 font-semibold">{followerCount ?? 0}</span> followers
+              </span>
               {ratingAvg !== null && (
                 <span className="text-gray-400 flex items-center gap-1">
                   <span className="text-[#B8902A]">★</span>
@@ -88,9 +109,14 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
             </div>
           </div>
 
-          {/* 自分のプロフィールならSNS認証ボタン */}
-          {isOwn && !profile.sns_verified && (
-            <SnsVerifySection userId={id} />
+          {/* 自分のプロフィールならSNS認証、他人ならフォローボタン */}
+          {isOwn && !profile.sns_verified && <SnsVerifySection userId={id} />}
+          {!isOwn && user && (
+            <FollowButton
+              targetUserId={id}
+              initialFollowing={isFollowing}
+              initialCount={followerCount ?? 0}
+            />
           )}
         </div>
       </div>

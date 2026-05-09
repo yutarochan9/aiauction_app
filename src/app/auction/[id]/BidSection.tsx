@@ -152,25 +152,22 @@ export default function BidSection({
     }
     setBidding(true)
     setMessage('')
-
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return (setMessage('Please log in'), setBidding(false))
-
-    // 入札を登録
-    const { error } = await supabase.from('bids').insert({
-      artwork_id: artwork.id,
-      user_id: user.id,
-      amount,
-    })
-
-    if (error) {
-      setMessage('Bid failed')
-    } else {
-      await supabase.from('artworks').update({ current_price: amount }).eq('id', artwork.id)
-      setCurrentPrice(amount)
-      setBidAmount('')
-      setMessage('Bid placed!')
+    try {
+      const res = await fetch('/api/bid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ artworkId: artwork.id, amount }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        setCurrentPrice(amount)
+        setBidAmount('')
+        setMessage('Bid placed!')
+      } else {
+        setMessage(data.error ?? 'Bid failed')
+      }
+    } catch {
+      setMessage('Network error')
     }
     setBidding(false)
   }

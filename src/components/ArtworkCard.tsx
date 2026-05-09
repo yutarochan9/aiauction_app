@@ -16,6 +16,7 @@ type Artwork = {
   tags: string[] | null
   bids: { count: number }[]
   likes: { count: number }[]
+  view_count?: number
 }
 
 function HeartIcon({ filled }: { filled: boolean }) {
@@ -160,6 +161,7 @@ export default function ArtworkCard({
           </p>
           <p className="text-xs text-gray-400 mb-3">
             {bidCount} {t('bidCount')} · {isEnded ? (isSold ? t('sold') : isHold ? 'On hold' : t('ended')) : timeLeft}
+            {(artwork.view_count ?? 0) > 0 && <span className="text-gray-300"> · 👁 {artwork.view_count}</span>}
           </p>
           <div className="flex items-center justify-between">
             <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${

@@ -1,9 +1,41 @@
 import { createClient } from '@/lib/supabase/server'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
 import BidSection from './BidSection'
 import BidderManagement from '@/components/BidderManagement'
+import ViewTracker from '@/components/ViewTracker'
 import Link from 'next/link'
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data: artwork } = await supabase
+    .from('artworks')
+    .select('title_en, title_ja, description_en, description_ja, image_url, current_price')
+    .eq('id', id)
+    .single()
+  if (!artwork) return { title: 'AIAII' }
+  const title = artwork.title_en || artwork.title_ja || 'Artwork'
+  const description = artwork.description_en || artwork.description_ja || `Current bid: $${artwork.current_price}`
+  const image = artwork.image_url
+  return {
+    title: `${title} | AIAII`,
+    description,
+    openGraph: {
+      title: `${title} | AIAII`,
+      description,
+      images: image ? [{ url: image, width: 1200, height: 1200 }] : [],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | AIAII`,
+      description,
+      images: image ? [image] : [],
+    },
+  }
+}
 
 export default async function AuctionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -76,6 +108,7 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="max-w-5xl mx-auto">
+      <ViewTracker artworkId={id} />
       <Link href="/" className="text-gray-400 hover:text-gray-900 text-sm mb-6 inline-block">
         ← Back to listings
       </Link>
