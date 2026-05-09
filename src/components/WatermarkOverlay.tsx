@@ -1,7 +1,7 @@
 'use client'
 
 export default function WatermarkOverlay({ dense = false }: { dense?: boolean }) {
-  const count = dense ? 120 : 60
+  const count = dense ? 80 : 40
   return (
     <div
       className="absolute inset-0 overflow-hidden pointer-events-none select-none z-10"

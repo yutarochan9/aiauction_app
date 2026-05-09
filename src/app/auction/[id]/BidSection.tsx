@@ -255,14 +255,17 @@ export default function BidSection({
       {isWinner && !isSold && (
         <div className="relative overflow-hidden rounded-2xl border border-[#C9A84C] p-6 space-y-4"
           style={{ background: 'linear-gradient(135deg, #1a1a1a 0%, #2a2218 100%)' }}>
-          {/* 装飾ライン */}
           <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, #C9A84C, transparent)' }} />
           <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, #C9A84C44, transparent)' }} />
 
-          {/* タイトル */}
-          <div className="space-y-1">
-            <p className="text-[10px] tracking-[0.3em] text-[#C9A84C] uppercase font-medium">Auction Result</p>
-            <p className="text-white text-lg font-semibold tracking-wide">Congratulations on your win.</p>
+          {/* YOU WON */}
+          <div className="text-center py-1">
+            <p className="text-[10px] tracking-[0.35em] text-[#C9A84C] uppercase font-medium mb-1">Auction Result</p>
+            <p className="text-4xl font-black tracking-widest uppercase"
+              style={{ background: 'linear-gradient(90deg, #C9A84C, #f0dc82, #C9A84C)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              You Won
+            </p>
+            <p className="text-white/50 text-xs tracking-wide mt-1">Congratulations on your winning bid</p>
           </div>
 
           {/* 落札金額 */}
@@ -288,14 +291,12 @@ export default function BidSection({
           <button
             onClick={handlePurchase}
             disabled={checkoutLoading}
-            className="w-full disabled:opacity-40 text-[#1a1a1a] font-semibold py-3 rounded-xl tracking-wide transition-opacity text-sm"
+            className="w-full disabled:opacity-40 text-[#1a1a1a] font-bold py-3 rounded-xl tracking-widest uppercase transition-opacity text-sm"
             style={{ background: 'linear-gradient(90deg, #C9A84C, #e8c96a, #C9A84C)' }}
           >
             {checkoutLoading ? 'Processing…' : 'Complete Purchase'}
           </button>
-          {message && (
-            <p className="text-red-400 text-xs">{message}</p>
-          )}
+          {message && <p className="text-red-400 text-xs">{message}</p>}
         </div>
       )}
 
@@ -323,7 +324,7 @@ export default function BidSection({
                     </div>
                   )}
                   <span className="text-sm text-gray-300">{bid.users?.display_name ?? 'Anonymous'}</span>
-                  {i === 0 && <span className="text-xs text-[#B8902A]">Top Bid</span>}
+                  {i === 0 && <span className="text-[10px] tracking-wider text-[#B8902A] uppercase">Top</span>}
                 </div>
                 <span className="font-semibold text-gray-900">${bid.amount.toLocaleString()}</span>
               </div>
