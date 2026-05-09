@@ -31,7 +31,7 @@ function useCountdown(endAt: string) {
       const h = Math.floor(diff / 3600000)
       const m = Math.floor((diff % 3600000) / 60000)
       const s = Math.floor((diff % 60000) / 1000)
-      setTimeLeft(h > 0 ? `${h}時間 ${m}分` : `${m}分 ${s}秒`)
+      setTimeLeft(h > 0 ? `${h}h ${m}m` : `${m}m ${s}s`)
     }
     calc()
     const id = setInterval(calc, 1000)
@@ -171,7 +171,7 @@ export default function BidSection({
                 min={minBid}
                 value={bidAmount}
                 onChange={(e) => setBidAmount(e.target.value)}
-                placeholder={`${minBid.toFixed(2)} 以上`}
+                placeholder={`${minBid.toFixed(2)} or more`}
                 className="w-full bg-stone-100 border border-stone-300 rounded-lg pl-8 pr-4 py-3 text-gray-900 focus:outline-none focus:border-[#B8902A]"
               />
             </div>
