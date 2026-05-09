@@ -14,27 +14,36 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // 購入確認
-  const { data: purchase } = await supabase
-    .from('purchases')
-    .select('id')
-    .eq('buyer_id', user.id)
-    .eq('artwork_id', artworkId)
-    .single()
-
-  if (!purchase) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
-
-  // 作品のオリジナルパスを取得
+  // 作品情報取得（出品者確認も兼ねる）
   const { data: artwork } = await supabase
     .from('artworks')
-    .select('original_storage_path')
+    .select('original_storage_path, user_id, image_url')
     .eq('id', artworkId)
     .single()
 
-  if (!artwork?.original_storage_path) {
-    return NextResponse.json({ error: 'Original not found' }, { status: 404 })
+  if (!artwork) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
+
+  const isSeller = artwork.user_id === user.id
+
+  // 出品者でなければ購入確認
+  if (!isSeller) {
+    const { data: purchase } = await supabase
+      .from('purchases')
+      .select('id')
+      .eq('buyer_id', user.id)
+      .eq('artwork_id', artworkId)
+      .single()
+
+    if (!purchase) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+  }
+
+  // オリジナルがなければimage_urlにリダイレクト
+  if (!artwork.original_storage_path) {
+    return NextResponse.redirect(artwork.image_url)
   }
 
   // admin clientでプライベートバケットからダウンロード
