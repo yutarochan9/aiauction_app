@@ -117,9 +117,7 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
       <div className="grid md:grid-cols-2 gap-10">
         {/* 左：画像 */}
         <div>
-          <div className="rounded-2xl overflow-hidden bg-white border border-stone-200 relative"
-            onContextMenu={(e) => e.preventDefault()}
-          >
+          <div className="rounded-2xl overflow-hidden bg-white border border-stone-200 relative">
             {artwork.image_url ? (
               <img
                 src={artwork.image_url}

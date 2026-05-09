@@ -1,3 +1,5 @@
+'use client'
+
 export default function WatermarkOverlay({ dense = false }: { dense?: boolean }) {
   const count = dense ? 30 : 12
   return (
