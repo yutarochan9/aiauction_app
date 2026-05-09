@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import BidSection from './BidSection'
+import BidderManagement from '@/components/BidderManagement'
 import Link from 'next/link'
 
 export default async function AuctionPage({ params }: { params: Promise<{ id: string }> }) {
@@ -96,6 +97,14 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
             bids={(bids ?? []) as any}
             currentUser={user}
           />
+
+          {/* 出品者向け：入札者管理（進行中のみ表示） */}
+          {user?.id === artwork.user_id && !isEnded && (
+            <BidderManagement
+              artworkId={artwork.id}
+              bids={(bids ?? []) as any}
+            />
+          )}
         </div>
       </div>
     </div>
