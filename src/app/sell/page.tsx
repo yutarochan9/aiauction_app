@@ -29,7 +29,8 @@ export default function SellPage() {
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
   const [scheduled, setScheduled] = useState(false)
-  const [startAt, setStartAt] = useState('')
+  const [startDate, setStartDate] = useState('')
+  const [startTime, setStartTime] = useState('12:00')
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]
@@ -64,7 +65,8 @@ export default function SellPage() {
     if (!agreed) return setError('Please agree to the terms')
     if (!title) return setError('Please enter a title')
     if (!startingPrice || Number(startingPrice) <= 0) return setError('Please enter a starting price')
-    if (scheduled && !startAt) return setError('Please set a start date/time')
+    if (scheduled && !startDate) return setError('Please set a start date/time')
+    const startAt = startDate ? `${startDate}T${startTime}` : ''
     if (scheduled && new Date(startAt) <= new Date()) return setError('Start time must be in the future')
 
     setSubmitting(true)
@@ -76,7 +78,8 @@ export default function SellPage() {
       const uploadJson = await uploadRes.json()
       if (!uploadRes.ok) throw new Error(uploadJson.error)
 
-      const startTime = scheduled ? new Date(startAt) : new Date()
+      const startAtStr = scheduled ? `${startDate}T${startTime}` : ''
+      const startTime = scheduled ? new Date(startAtStr) : new Date()
       const endAt = new Date(startTime.getTime() + duration * 3600 * 1000).toISOString()
 
       const supabase = createClient()
@@ -246,22 +249,34 @@ export default function SellPage() {
             <button
               type="button"
               onClick={() => setScheduled(!scheduled)}
-              className={`relative w-11 h-6 rounded-full transition-colors ${scheduled ? 'bg-[#B8902A]' : 'bg-stone-200'}`}
+              className={`relative w-11 h-6 rounded-full transition-colors shrink-0 overflow-hidden ${scheduled ? 'bg-[#B8902A]' : 'bg-stone-200'}`}
             >
               <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${scheduled ? 'translate-x-6' : 'translate-x-1'}`} />
             </button>
           </div>
           {scheduled && (
-            <div lang="en">
-              <label className="block text-xs text-gray-500 mb-1">Start Date & Time</label>
-              <input
-                type="datetime-local"
-                value={startAt}
-                onChange={(e) => setStartAt(e.target.value)}
-                min={new Date(Date.now() + 60000).toISOString().slice(0, 16)}
-                className="w-full bg-white border border-stone-300 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:border-[#B8902A] transition-colors text-sm"
-                required={scheduled}
-              />
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Date</label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  min={new Date().toISOString().slice(0, 10)}
+                  className="w-full bg-white border border-stone-300 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#B8902A] transition-colors text-sm"
+                  required={scheduled}
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Time</label>
+                <input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className="w-full bg-white border border-stone-300 rounded-xl px-3 py-2.5 text-gray-900 focus:outline-none focus:border-[#B8902A] transition-colors text-sm"
+                  required={scheduled}
+                />
+              </div>
             </div>
           )}
         </div>
