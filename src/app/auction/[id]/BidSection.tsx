@@ -52,7 +52,9 @@ export default function BidSection({
   const t = useTranslations('auction')
   const timeLeft = useCountdown(artwork.end_at)
   const [bids, setBids] = useState<Bid[]>(initialBids)
-  const [currentPrice, setCurrentPrice] = useState(artwork.current_price)
+  const [currentPrice, setCurrentPrice] = useState(
+    Math.max(artwork.current_price, initialBids[0]?.amount ?? 0)
+  )
   const [bidAmount, setBidAmount] = useState('')
   const [bidding, setBidding] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
