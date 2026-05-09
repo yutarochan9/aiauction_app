@@ -79,8 +79,8 @@ export default function SellPage() {
       if (!uploadRes.ok) throw new Error(uploadJson.error)
 
       const startAtStr = scheduled ? `${startDate}T${startTime}` : ''
-      const startTime = scheduled ? new Date(startAtStr) : new Date()
-      const endAt = new Date(startTime.getTime() + duration * 3600 * 1000).toISOString()
+      const startDateTime = scheduled ? new Date(startAtStr) : new Date()
+      const endAt = new Date(startDateTime.getTime() + duration * 3600 * 1000).toISOString()
 
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
@@ -99,7 +99,7 @@ export default function SellPage() {
           original_storage_path: uploadJson.originalPath,
           starting_price: price,
           current_price: price,
-          start_at: startTime.toISOString(),
+          start_at: startDateTime.toISOString(),
           end_at: endAt,
           status: scheduled ? 'scheduled' : 'active',
           tags,
