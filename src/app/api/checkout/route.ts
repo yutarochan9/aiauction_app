@@ -8,6 +8,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Stripe key not configured' }, { status: 500 })
   }
 
+  console.log('Stripe key prefix:', key.substring(0, 12), 'suffix:', key.substring(key.length - 6), 'len:', key.length)
+
   const stripe = new Stripe(key)
   const supabase = await createClient()
 
