@@ -57,8 +57,8 @@ export default function Navbar() {
               <Link href="/sell" className="text-neutral-400 hover:text-white transition-colors text-sm">
                 {t('sell')}
               </Link>
-              <Link href="/dashboard" className="text-neutral-400 hover:text-white transition-colors text-sm">
-                {t('dashboard')}
+              <Link href="/mypage" className="text-neutral-400 hover:text-white transition-colors text-sm">
+                My Page
               </Link>
             </>
           )}

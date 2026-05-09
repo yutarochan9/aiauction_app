@@ -16,6 +16,14 @@ type Artwork = {
   bids: { count: number }[]
 }
 
+function HeartIcon({ filled }: { filled: boolean }) {
+  return (
+    <svg className="w-4 h-4" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+    </svg>
+  )
+}
+
 function useCountdown(endAt: string) {
   const [timeLeft, setTimeLeft] = useState('')
 
@@ -36,7 +44,15 @@ function useCountdown(endAt: string) {
   return timeLeft
 }
 
-export default function ArtworkCard({ artwork, locale }: { artwork: Artwork; locale: string }) {
+export default function ArtworkCard({
+  artwork,
+  locale,
+  isLiked: initialIsLiked = false,
+}: {
+  artwork: Artwork
+  locale: string
+  isLiked?: boolean
+}) {
   const t = useTranslations('auction')
   const timeLeft = useCountdown(artwork.end_at)
   const title = locale === 'ja' ? artwork.title_ja : artwork.title_en
@@ -44,6 +60,27 @@ export default function ArtworkCard({ artwork, locale }: { artwork: Artwork; loc
   const isEnded = artwork.status !== 'active' || new Date(artwork.end_at) <= new Date()
   const isSold = artwork.status === 'sold'
   const isHold = artwork.status === 'active' && new Date(artwork.end_at) <= new Date()
+
+  const [liked, setLiked] = useState(initialIsLiked)
+
+  const handleLike = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setLiked(prev => !prev)
+    try {
+      const res = await fetch('/api/like', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ artworkId: artwork.id }),
+      })
+      if (res.status === 401) {
+        setLiked(prev => !prev)
+        window.location.href = '/auth/login'
+      }
+    } catch {
+      setLiked(prev => !prev)
+    }
+  }
 
   return (
     <Link href={`/auction/${artwork.id}`} className="group block">
@@ -65,6 +102,18 @@ export default function ArtworkCard({ artwork, locale }: { artwork: Artwork; loc
               No Image
             </div>
           )}
+
+          {/* ハートいいねボタン */}
+          <button
+            onClick={handleLike}
+            className={`absolute top-2 right-2 z-10 p-1.5 rounded-full backdrop-blur-sm transition-all ${
+              liked
+                ? 'bg-white/90 text-red-500'
+                : 'bg-black/20 text-white/70 hover:text-red-400 opacity-0 group-hover:opacity-100'
+            }`}
+          >
+            <HeartIcon filled={liked} />
+          </button>
           {isEnded && (
             <div className="absolute inset-0 flex items-center justify-center overflow-hidden"
               style={{ background: isSold ? 'rgba(0,0,0,0.45)' : isHold ? 'rgba(0,0,0,0.38)' : 'rgba(0,0,0,0.55)' }}

@@ -65,11 +65,13 @@ export default async function HomePage({
 
   const { data: artworks } = await query
 
-  // ブラックリストフィルタリング：自分をブロックしている出品者の作品を非表示
-  // ただし現在入札中のものは表示したまま
+  // ログインユーザー取得（ブラックリスト・いいね用）
   const { data: { user } } = await supabase.auth.getUser()
   let filteredArtworks = artworks ?? []
+  let likedIds = new Set<string>()
+
   if (user && filteredArtworks.length > 0) {
+    // ブラックリストフィルタリング
     const { data: blacklists } = await supabase
       .from('blacklists')
       .select('seller_id')
@@ -82,11 +84,17 @@ export default async function HomePage({
         .select('artwork_id')
         .eq('user_id', user.id)
       const myBidArtworkIds = new Set(myBids?.map(b => b.artwork_id) ?? [])
-
       filteredArtworks = filteredArtworks.filter(artwork =>
         !blockedSellerIds.has(artwork.user_id) || myBidArtworkIds.has(artwork.id)
       )
     }
+
+    // いいね済みIDセット
+    const { data: myLikes } = await supabase
+      .from('likes')
+      .select('artwork_id')
+      .eq('user_id', user.id)
+    likedIds = new Set(myLikes?.map(l => l.artwork_id) ?? [])
   }
 
   const buildUrl = (overrides: Record<string, string>) => {
@@ -167,7 +175,7 @@ export default async function HomePage({
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredArtworks.map((artwork) => (
-            <ArtworkCard key={artwork.id} artwork={artwork as any} locale={locale} />
+            <ArtworkCard key={artwork.id} artwork={artwork as any} locale={locale} isLiked={likedIds.has(artwork.id)} />
           ))}
         </div>
       )}
