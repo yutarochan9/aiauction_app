@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 import { sendPaymentReceivedEmail, sendWonAuctionEmail } from '@/lib/email'
 import { sendPushToUser } from '@/lib/push'
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://aiauction-app.vercel.app'
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://aia2-aiartauction.vercel.app'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 

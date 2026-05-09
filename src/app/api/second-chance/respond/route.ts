@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     .eq('id', offer.artwork_id)
     .single()
 
-  const origin = process.env.NEXT_PUBLIC_APP_URL ?? 'https://aiauction-app.vercel.app'
+  const origin = process.env.NEXT_PUBLIC_APP_URL ?? 'https://aia2-aiartauction.vercel.app'
   const amountCents = Math.round(offer.amount * 100)
   const params = new URLSearchParams()
   params.append('mode', 'payment')
