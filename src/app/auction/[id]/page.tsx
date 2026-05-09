@@ -31,6 +31,28 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
   // ログイン中のユーザー
   const { data: { user } } = await supabase.auth.getUser()
 
+  // ブラックリスト確認（出品者が現ユーザーをブロックしているか）
+  let isBlacklisted = false
+  let blockedUserIds: string[] = []
+  if (user) {
+    const { data: blacklistCheck } = await supabase
+      .from('blacklists')
+      .select('id')
+      .eq('seller_id', artwork.user_id)
+      .eq('blocked_user_id', user.id)
+      .single()
+    isBlacklisted = !!blacklistCheck
+
+    // 出品者の場合：自分のブラックリストを取得
+    if (user.id === artwork.user_id) {
+      const { data: myBlacklist } = await supabase
+        .from('blacklists')
+        .select('blocked_user_id')
+        .eq('seller_id', user.id)
+      blockedUserIds = myBlacklist?.map(b => b.blocked_user_id) ?? []
+    }
+  }
+
   const title = locale === 'ja' ? artwork.title_ja : artwork.title_en
   const description = locale === 'ja' ? artwork.description_ja : artwork.description_en
   const seller = artwork.users as any
@@ -96,6 +118,7 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
             artwork={artwork as any}
             bids={(bids ?? []) as any}
             currentUser={user}
+            isBlacklisted={isBlacklisted}
           />
 
           {/* 出品者向け：入札者管理（進行中のみ表示） */}
@@ -103,6 +126,7 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
             <BidderManagement
               artworkId={artwork.id}
               bids={(bids ?? []) as any}
+              blockedUserIds={blockedUserIds}
             />
           )}
         </div>

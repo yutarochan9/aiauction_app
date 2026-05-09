@@ -44,10 +44,12 @@ export default function BidSection({
   artwork,
   bids: initialBids,
   currentUser,
+  isBlacklisted = false,
 }: {
   artwork: Artwork
   bids: Bid[]
   currentUser: User | null
+  isBlacklisted?: boolean
 }) {
   const t = useTranslations('auction')
   const timeLeft = useCountdown(artwork.end_at)
@@ -162,7 +164,7 @@ export default function BidSection({
       </div>
 
       {/* 入札フォーム */}
-      {!isEnded && !isOwner && currentUser && (
+      {!isEnded && !isOwner && currentUser && !isBlacklisted && (
         <div className="space-y-3">
           <div className="flex gap-3">
             <div className="relative flex-1">
@@ -190,6 +192,12 @@ export default function BidSection({
               {message}
             </p>
           )}
+        </div>
+      )}
+
+      {isBlacklisted && !isEnded && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-500">
+          You are not allowed to bid on this auction.
         </div>
       )}
 
