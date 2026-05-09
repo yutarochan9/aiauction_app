@@ -134,8 +134,8 @@ export default function BidSection({
     if (error) {
       setMessage('Bid failed')
     } else {
-      // artworksの現在価格を更新
       await supabase.from('artworks').update({ current_price: amount }).eq('id', artwork.id)
+      setCurrentPrice(amount)
       setBidAmount('')
       setMessage('Bid placed!')
     }
@@ -202,7 +202,7 @@ export default function BidSection({
         <div className="bg-[#FBF6EC] border border-[#B8902A] rounded-xl p-5 space-y-3">
           <p className="text-[#B8902A] font-semibold">🎉 Congratulations! You won!</p>
           <p className="text-gray-400 text-sm">
-            Winning bid: <span className="text-gray-900 font-bold">${currentPrice.toLocaleString()}</span>
+            Winning bid: <span className="text-gray-900 font-bold">${(bids[0]?.amount ?? currentPrice).toLocaleString()}</span>
           </p>
           <button
             onClick={handlePurchase}
