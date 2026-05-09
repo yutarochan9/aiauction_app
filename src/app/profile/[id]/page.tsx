@@ -29,6 +29,17 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
   // 落札数
   const soldCount = artworks?.filter(a => a.status === 'sold').length ?? 0
 
+  // レビュー取得
+  const { data: reviews } = await supabase
+    .from('reviews')
+    .select('*, users!reviewer_id(display_name, avatar_url)')
+    .eq('reviewee_id', id)
+    .order('created_at', { ascending: false })
+
+  const ratingAvg = reviews?.length
+    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+    : null
+
   // ログイン中のユーザー（自分のプロフィールかどうか）
   const { data: { user } } = await supabase.auth.getUser()
   const isOwn = user?.id === id
@@ -60,13 +71,20 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
             {profile.bio && <p className="text-gray-400 text-sm">{profile.bio}</p>}
 
             {/* 実績 */}
-            <div className="flex gap-6 mt-3 text-sm">
+            <div className="flex gap-6 mt-3 text-sm flex-wrap">
               <span className="text-gray-400">
                 <span className="text-gray-900 font-semibold">{artworks?.length ?? 0}</span> listings
               </span>
               <span className="text-gray-400">
-                <span className="text-gray-900 font-semibold">{soldCount}</span> items won
+                <span className="text-gray-900 font-semibold">{soldCount}</span> sold
               </span>
+              {ratingAvg !== null && (
+                <span className="text-gray-400 flex items-center gap-1">
+                  <span className="text-[#B8902A]">★</span>
+                  <span className="text-gray-900 font-semibold">{ratingAvg.toFixed(1)}</span>
+                  <span>({reviews?.length} reviews)</span>
+                </span>
+              )}
             </div>
           </div>
 
@@ -76,6 +94,38 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
           )}
         </div>
       </div>
+
+      {/* レビュー一覧 */}
+      {reviews && reviews.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-lg font-bold text-gray-900 mb-4">
+            Reviews
+            <span className="ml-2 text-[#B8902A] text-base">★ {ratingAvg?.toFixed(1)}</span>
+          </h2>
+          <div className="space-y-3">
+            {reviews.map((r) => {
+              const reviewer = r.users as any
+              return (
+                <div key={r.id} className="bg-white rounded-xl p-4 border border-stone-200">
+                  <div className="flex items-center gap-3 mb-2">
+                    {reviewer?.avatar_url ? (
+                      <img src={reviewer.avatar_url} alt="" className="w-7 h-7 rounded-full" />
+                    ) : (
+                      <div className="w-7 h-7 rounded-full bg-stone-200 flex items-center justify-center text-xs font-bold text-gray-500">
+                        {reviewer?.display_name?.[0] ?? '?'}
+                      </div>
+                    )}
+                    <span className="text-sm font-medium text-gray-900">{reviewer?.display_name ?? 'Anonymous'}</span>
+                    <span className="text-[#B8902A] text-sm">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
+                    <span className="text-xs text-gray-300 ml-auto">{new Date(r.created_at).toLocaleDateString()}</span>
+                  </div>
+                  {r.comment && <p className="text-sm text-gray-600">{r.comment}</p>}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* 出品作品一覧 */}
       <h2 className="text-lg font-bold text-gray-900 mb-4">{t('listings')}</h2>

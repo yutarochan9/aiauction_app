@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import ReviewForm from '@/components/ReviewForm'
 
 export default async function DashboardPage() {
   const t = await getTranslations('dashboard')
@@ -25,19 +26,24 @@ export default async function DashboardPage() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
-  // 重複排除（同一作品の最新入札のみ）
   const uniqueBidArtworks = myBids
-    ? Array.from(
-        new Map(myBids.map((b) => [(b.artworks as any)?.id, b])).values()
-      )
+    ? Array.from(new Map(myBids.map((b) => [(b.artworks as any)?.id, b])).values())
     : []
 
-  // 自分の落札作品
+  // 自分の落札作品（出品者情報も取得）
   const { data: myPurchases } = await supabase
     .from('purchases')
-    .select('*, artworks(id, title_ja, title_en, image_url)')
+    .select('*, artworks(id, title_ja, title_en, image_url, user_id)')
     .eq('buyer_id', user.id)
     .order('created_at', { ascending: false })
+
+  // 自分が書いたレビューのpurchase_idリスト
+  const { data: myReviews } = await supabase
+    .from('reviews')
+    .select('purchase_id')
+    .eq('reviewer_id', user.id)
+
+  const reviewedPurchaseIds = new Set(myReviews?.map((r) => r.purchase_id) ?? [])
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
@@ -47,7 +53,7 @@ export default async function DashboardPage() {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900">{t('myListings')}</h2>
-          <Link href="/sell" className="text-sm text-[#B8902A] hover:text-[#B8902A]">+ List Artwork</Link>
+          <Link href="/sell" className="text-sm text-[#B8902A]">+ List Artwork</Link>
         </div>
         {!myArtworks?.length ? (
           <p className="text-gray-300 text-sm">No listings yet</p>
@@ -60,22 +66,17 @@ export default async function DashboardPage() {
                   <div className="bg-white rounded-xl overflow-hidden border border-stone-200 hover:border-[#B8902A] transition-colors">
                     <div className="aspect-square overflow-hidden bg-stone-100">
                       {a.image_url && (
-                        <img
-                          src={a.image_url}
-                          alt={title}
-                          className="w-full h-full object-cover pointer-events-none select-none"
-                          draggable={false}
-                        />
+                        <img src={a.image_url} alt={title} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} />
                       )}
                     </div>
                     <div className="p-3">
                       <p className="text-xs text-gray-900 truncate">{title}</p>
                       <span className={`text-xs mt-1 inline-block px-2 py-0.5 rounded-full ${
                         a.status === 'active' ? 'bg-[#F0F7F0] text-[#3D7A4D]' :
-                        a.status === 'sold' ? 'bg-[#FBF6EC] text-[#B8902A]' :
+                        a.status === 'sold'   ? 'bg-[#FBF6EC] text-[#B8902A]' :
                         'bg-stone-100 text-stone-500'
                       }`}>
-                        {a.status === 'active' ? 'Active' : a.status === 'sold' ? 'Sold' : 'Ended'}
+                        {a.status === 'active' ? 'Live' : a.status === 'sold' ? 'Sold' : 'Closed'}
                       </span>
                     </div>
                   </div>
@@ -106,14 +107,12 @@ export default async function DashboardPage() {
                   )}
                   <div className="flex-1">
                     <p className="text-gray-900 text-sm font-medium">{title}</p>
-                    <p className="text-gray-400 text-xs">
-                      Current bid: ${artwork.current_price?.toLocaleString()}
-                    </p>
+                    <p className="text-gray-400 text-xs">Current bid: ${artwork.current_price?.toLocaleString()}</p>
                   </div>
                   <span className={`text-xs px-2 py-1 rounded-full ${
                     artwork.status === 'active' ? 'bg-[#F0F7F0] text-[#3D7A4D]' : 'bg-stone-100 text-stone-500'
                   }`}>
-                    {artwork.status === 'active' ? 'Active' : 'Ended'}
+                    {artwork.status === 'active' ? 'Live' : 'Closed'}
                   </span>
                 </Link>
               )
@@ -128,26 +127,38 @@ export default async function DashboardPage() {
         {!myPurchases?.length ? (
           <p className="text-gray-300 text-sm">No purchases yet</p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {myPurchases.map((p) => {
               const artwork = p.artworks as any
               const title = artwork ? (locale === 'ja' ? artwork.title_ja : artwork.title_en) : 'Unknown'
+              const alreadyReviewed = reviewedPurchaseIds.has(p.id)
               return (
-                <div key={p.id} className="flex items-center gap-4 bg-white rounded-xl p-4 border border-stone-200">
-                  {artwork?.image_url && (
-                    <img src={artwork.image_url} alt={title} className="w-12 h-12 rounded-lg object-cover pointer-events-none" draggable={false} />
-                  )}
-                  <div className="flex-1">
-                    <p className="text-gray-900 text-sm font-medium">{title}</p>
-                    <p className="text-gray-400 text-xs">Winning bid: ${p.amount?.toLocaleString()}</p>
+                <div key={p.id} className="bg-white rounded-xl p-4 border border-stone-200">
+                  <div className="flex items-center gap-4">
+                    {artwork?.image_url && (
+                      <img src={artwork.image_url} alt={title} className="w-12 h-12 rounded-lg object-cover pointer-events-none" draggable={false} />
+                    )}
+                    <div className="flex-1">
+                      <p className="text-gray-900 text-sm font-medium">{title}</p>
+                      <p className="text-gray-400 text-xs">Winning bid: ${p.amount?.toLocaleString()}</p>
+                    </div>
+                    {artwork?.user_id && (
+                      <Link href={`/profile/${artwork.user_id}`} className="text-xs text-[#B8902A] hover:underline">
+                        View seller
+                      </Link>
+                    )}
                   </div>
-                  {p.download_url && new Date(p.download_expires_at) > new Date() && (
-                    <a
-                      href={p.download_url}
-                      className="text-xs bg-[#2C2C2C] hover:bg-[#3C3C3C] text-white px-3 py-1.5 rounded-lg transition-colors"
-                    >
-                      Download
-                    </a>
+
+                  {/* 評価フォーム（未レビューのみ表示） */}
+                  {!alreadyReviewed && artwork?.user_id && (
+                    <ReviewForm
+                      purchaseId={p.id}
+                      revieweeId={artwork.user_id}
+                      artworkId={artwork.id}
+                    />
+                  )}
+                  {alreadyReviewed && (
+                    <p className="mt-3 text-xs text-gray-400">✓ You reviewed this purchase</p>
                   )}
                 </div>
               )
