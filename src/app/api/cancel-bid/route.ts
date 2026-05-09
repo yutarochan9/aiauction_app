@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -11,7 +12,7 @@ export async function POST(request: NextRequest) {
   // 出品者本人かチェック
   const { data: artwork } = await supabase
     .from('artworks')
-    .select('user_id, status')
+    .select('user_id, status, starting_price')
     .eq('id', artworkId)
     .single()
 
@@ -22,11 +23,26 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Auction already ended' }, { status: 400 })
   }
 
-  // 入札を削除
-  const { error: deleteErr } = await supabase
+  // サービスロールキーでRLSをバイパスして入札を削除
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  // 対象入札のuser_idを取得してそのユーザーの全入札を削除
+  const { data: targetBid } = await admin
+    .from('bids')
+    .select('user_id')
+    .eq('id', bidId)
+    .eq('artwork_id', artworkId)
+    .single()
+
+  if (!targetBid) return NextResponse.json({ error: 'Bid not found' }, { status: 404 })
+
+  const { error: deleteErr } = await admin
     .from('bids')
     .delete()
-    .eq('id', bidId)
+    .eq('user_id', targetBid.user_id)
     .eq('artwork_id', artworkId)
 
   if (deleteErr) {
@@ -34,7 +50,7 @@ export async function POST(request: NextRequest) {
   }
 
   // 残りの最高入札額を取得して current_price を更新
-  const { data: topBid } = await supabase
+  const { data: topBid } = await admin
     .from('bids')
     .select('amount')
     .eq('artwork_id', artworkId)
@@ -42,14 +58,8 @@ export async function POST(request: NextRequest) {
     .limit(1)
     .single()
 
-  const { data: artworkFull } = await supabase
-    .from('artworks')
-    .select('starting_price')
-    .eq('id', artworkId)
-    .single()
-
-  const newPrice = topBid?.amount ?? artworkFull?.starting_price ?? 0
-  await supabase
+  const newPrice = topBid?.amount ?? artwork.starting_price ?? 0
+  await admin
     .from('artworks')
     .update({ current_price: newPrice })
     .eq('id', artworkId)

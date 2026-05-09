@@ -68,6 +68,8 @@ export default function BidSection({
   const topBidder = bids[0]
   const isWinner = isEnded && !isOwner && currentUser?.id === topBidder?.user_id
   const minBid = currentPrice + 0.01
+  const paymentDeadlineIso = new Date(new Date(artwork.end_at).getTime() + 72 * 3600 * 1000).toISOString()
+  const deadlineCountdown = useCountdown(paymentDeadlineIso)
 
   // Supabase Realtimeでリアルタイム入札更新
   useEffect(() => {
@@ -214,6 +216,15 @@ export default function BidSection({
           <p className="text-gray-400 text-sm">
             Winning bid: <span className="text-gray-900 font-bold">${(bids[0]?.amount ?? currentPrice).toLocaleString()}</span>
           </p>
+          <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+            <span className="text-amber-500 text-sm">⏰</span>
+            <div>
+              <p className="text-xs text-amber-700 font-medium">Payment deadline</p>
+              <p className="text-xs text-amber-600">
+                {deadlineCountdown === 'Ended' ? 'Deadline passed' : `${deadlineCountdown} remaining`}
+              </p>
+            </div>
+          </div>
           <button
             onClick={handlePurchase}
             disabled={checkoutLoading}
