@@ -82,9 +82,8 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
     isLiked = !!likeCheck
   }
 
-  // 購入者確認（支払い済みのみ）
-  const sellerUserId = (artwork as any).user_id as string | null
-  const isSeller = !!user && !!sellerUserId && user.id === sellerUserId
+  // 出品者・購入者判定
+  const isSeller = !!user && user.id === artwork.user_id
   let isBuyer = false
   if (user && !isSeller) {
     const { data: purchaseCheck } = await supabase
@@ -95,10 +94,6 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
       .single()
     isBuyer = !!purchaseCheck
   }
-  // 出品者は常にimage_urlを使う（original-image APIは不要）
-  const imageSrc = (isBuyer && !isSeller)
-    ? `/api/original-image?artworkId=${id}`
-    : (artwork.image_url ?? '')
 
   // ブラックリスト確認（出品者が現ユーザーをブロックしているか）
   let isBlacklisted = false
@@ -140,7 +135,7 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
           <div className="rounded-2xl overflow-hidden bg-white border border-stone-200 relative">
             {artwork.image_url ? (
               <img
-                src={imageSrc}
+                src={artwork.image_url}
                 alt={title}
                 className="w-full object-contain pointer-events-none select-none"
                 draggable={false}
