@@ -5,34 +5,51 @@ import SearchFilter from '@/components/SearchFilter'
 import Link from 'next/link'
 
 type SortKey = 'new' | 'ending' | 'price'
+type StatusFilter = 'active' | 'ended' | 'upcoming'
+
+const STATUS_TABS: { key: StatusFilter; label: string }[] = [
+  { key: 'active',   label: '進行中' },
+  { key: 'ended',    label: '終了' },
+  { key: 'upcoming', label: '販売予定' },
+]
 
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ sort?: string; q?: string; tag?: string }>
+  searchParams: Promise<{ sort?: string; q?: string; tag?: string; status?: string }>
 }) {
   const params = await searchParams
   const sort = (params.sort ?? 'new') as SortKey
   const q = params.q ?? ''
   const tag = params.tag ?? ''
+  const statusFilter = (params.status ?? 'active') as StatusFilter
   const t = await getTranslations('home')
   const locale = await getLocale()
   const supabase = await createClient()
+  const now = new Date().toISOString()
 
   const orderMap: Record<SortKey, { column: string; ascending: boolean }> = {
-    new: { column: 'created_at', ascending: false },
-    ending: { column: 'end_at', ascending: true },
-    price: { column: 'current_price', ascending: true },
+    new:    { column: 'created_at',    ascending: false },
+    ending: { column: 'end_at',        ascending: true },
+    price:  { column: 'current_price', ascending: true },
   }
   const { column, ascending } = orderMap[sort] ?? orderMap.new
 
   let query = supabase
     .from('artworks')
     .select('*, bids(count)')
-    .eq('status', 'active')
-    .gt('end_at', new Date().toISOString())
     .order(column, { ascending })
     .limit(48)
+
+  if (statusFilter === 'active') {
+    query = query.eq('status', 'active').gt('end_at', now)
+  } else if (statusFilter === 'ended') {
+    // sold または end_at が過ぎたもの
+    query = query.or(`status.eq.sold,and(status.eq.active,end_at.lte.${now})`)
+  } else if (statusFilter === 'upcoming') {
+    // 将来的にscheduledステータスを使う想定（今は空）
+    query = query.eq('status', 'scheduled')
+  }
 
   if (q) query = query.ilike('title_en', `%${q}%`)
   if (tag) query = query.contains('tags', [tag])
@@ -40,9 +57,18 @@ export default async function HomePage({
   const { data: artworks } = await query
 
   const sortLabels: Record<SortKey, string> = {
-    new: t('sortNew'),
+    new:    t('sortNew'),
     ending: t('sortEndingSoon'),
-    price: t('sortPrice'),
+    price:  t('sortPrice'),
+  }
+
+  const buildUrl = (overrides: Record<string, string>) => {
+    const p = { sort, q, tag, status: statusFilter, ...overrides }
+    const qs = Object.entries(p)
+      .filter(([, v]) => v)
+      .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+      .join('&')
+    return `/?${qs}`
   }
 
   return (
@@ -65,12 +91,29 @@ export default async function HomePage({
       {/* 検索・タグフィルター */}
       <SearchFilter currentQ={q} currentTag={tag} currentSort={sort} />
 
+      {/* ステータスタブ */}
+      <div className="flex gap-2 mb-5">
+        {STATUS_TABS.map(({ key, label }) => (
+          <Link
+            key={key}
+            href={buildUrl({ status: key })}
+            className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${
+              statusFilter === key
+                ? 'bg-[#B8902A] text-white'
+                : 'bg-stone-100 text-gray-400 hover:text-gray-900'
+            }`}
+          >
+            {label}
+          </Link>
+        ))}
+      </div>
+
       {/* ソートタブ */}
       <div className="flex gap-3 mb-8">
         {(Object.keys(sortLabels) as SortKey[]).map((key) => (
           <Link
             key={key}
-            href={`/?sort=${key}${q ? `&q=${encodeURIComponent(q)}` : ''}${tag ? `&tag=${encodeURIComponent(tag)}` : ''}`}
+            href={buildUrl({ sort: key })}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               sort === key
                 ? 'bg-[#2C2C2C] text-white'
@@ -85,7 +128,7 @@ export default async function HomePage({
       {/* 作品一覧 */}
       {!artworks || artworks.length === 0 ? (
         <div className="text-center py-24 text-gray-400">
-          {q || tag ? 'No artworks found' : t('noArtworks')}
+          {statusFilter === 'upcoming' ? '販売予定の作品はまだありません' : q || tag ? 'No artworks found' : t('noArtworks')}
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
