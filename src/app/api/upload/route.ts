@@ -55,11 +55,33 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: `Upload failed: ${origError.message}` }, { status: 500 })
   }
 
-  // 低解像度サムネイル生成（600px以下・透かしなし）
+  // 低解像度サムネイル生成（600px以下・透かし入り）
   let thumbnail: Buffer
   try {
-    thumbnail = await sharp(buffer)
+    // まずリサイズ
+    const resized = await sharp(buffer)
       .resize(600, 600, { fit: 'inside', withoutEnlargement: true })
+      .toBuffer()
+
+    const { width = 600, height = 600 } = await sharp(resized).metadata()
+
+    // 透かしSVGをサムネイルサイズに合わせて生成
+    const cols = Math.ceil(width / 120) + 2
+    const rows = Math.ceil(height / 65) + 2
+    const texts = Array.from({ length: rows * cols }, (_, i) => {
+      const col = i % cols
+      const row = Math.floor(i / cols)
+      const x = col * 120 - 20
+      const y = row * 65 + 20
+      return `<text x="${x}" y="${y}" transform="rotate(-28 ${x + 45} ${y})" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="rgba(255,255,255,0.28)" letter-spacing="3">© AIAII</text>`
+    }).join('')
+
+    const wmSvg = Buffer.from(
+      `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">${texts}</svg>`
+    )
+
+    thumbnail = await sharp(resized)
+      .composite([{ input: wmSvg }])
       .webp({ quality: 80 })
       .toBuffer()
   } catch (e) {

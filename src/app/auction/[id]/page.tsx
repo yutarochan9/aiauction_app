@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import BidSection from './BidSection'
 import BidderManagement from '@/components/BidderManagement'
 import ViewTracker from '@/components/ViewTracker'
+import WatermarkOverlay from '@/components/WatermarkOverlay'
 import Link from 'next/link'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -116,8 +117,8 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
       <div className="grid md:grid-cols-2 gap-10">
         {/* 左：画像 */}
         <div>
-          <div
-            className="rounded-2xl overflow-hidden bg-white border border-stone-200"
+          <div className="rounded-2xl overflow-hidden bg-white border border-stone-200 relative"
+            onContextMenu={(e) => e.preventDefault()}
           >
             {artwork.image_url ? (
               <img
@@ -129,6 +130,7 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
             ) : (
               <div className="aspect-square flex items-center justify-center text-gray-300">No Image</div>
             )}
+            <WatermarkOverlay dense />
           </div>
           {/* 保護の案内 */}
           <p className="text-xs text-gray-300 mt-3 text-center">{t('protectedNotice')}</p>

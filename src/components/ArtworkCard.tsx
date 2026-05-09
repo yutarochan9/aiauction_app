@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
+import WatermarkOverlay from './WatermarkOverlay'
 
 type Artwork = {
   id: string
@@ -110,6 +111,8 @@ export default function ArtworkCard({
               No Image
             </div>
           )}
+
+          <WatermarkOverlay />
 
           {isEnded && (
             <div className="absolute inset-0 flex items-center justify-center overflow-hidden"
