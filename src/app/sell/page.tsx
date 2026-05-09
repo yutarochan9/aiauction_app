@@ -47,7 +47,7 @@ export default function SellPage() {
   }
 
   const addTag = (val: string) => {
-    const t = val.trim().toLowerCase().replace(/\s+/g, '-')
+    const t = val.trim().toLowerCase().replace(/^#+/, '').replace(/\s+/g, '-')
     if (t && !tags.includes(t) && tags.length < 5) {
       setTags([...tags, t])
     }
@@ -252,7 +252,7 @@ export default function SellPage() {
             </button>
           </div>
           {scheduled && (
-            <div>
+            <div lang="en">
               <label className="block text-xs text-gray-500 mb-1">Start Date & Time</label>
               <input
                 type="datetime-local"
