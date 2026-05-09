@@ -81,20 +81,16 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
   }
 
   // 購入者確認（支払い済みのみ）
+  const isSeller = user?.id === artwork.user_id
   let isBuyer = false
-  if (user) {
-    if (user.id === artwork.user_id) {
-      // 出品者自身も透かしなし
-      isBuyer = true
-    } else {
-      const { data: purchaseCheck } = await supabase
-        .from('purchases')
-        .select('id')
-        .eq('buyer_id', user.id)
-        .eq('artwork_id', id)
-        .single()
-      isBuyer = !!purchaseCheck
-    }
+  if (user && !isSeller) {
+    const { data: purchaseCheck } = await supabase
+      .from('purchases')
+      .select('id')
+      .eq('buyer_id', user.id)
+      .eq('artwork_id', id)
+      .single()
+    isBuyer = !!purchaseCheck
   }
 
   // ブラックリスト確認（出品者が現ユーザーをブロックしているか）
@@ -145,10 +141,10 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
             ) : (
               <div className="aspect-square flex items-center justify-center text-gray-300">No Image</div>
             )}
-            {!isBuyer && <WatermarkOverlay dense />}
+            {!isBuyer && !isSeller && <WatermarkOverlay dense />}
           </div>
           {/* 保護の案内 */}
-          {!isBuyer && <p className="text-xs text-gray-300 mt-3 text-center">{t('protectedNotice')}</p>}
+          {!isBuyer && !isSeller && <p className="text-xs text-gray-300 mt-3 text-center">{t('protectedNotice')}</p>}
         </div>
 
         {/* 右：情報・入札 */}
