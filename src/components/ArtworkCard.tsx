@@ -65,15 +65,35 @@ export default function ArtworkCard({ artwork, locale }: { artwork: Artwork; loc
             </div>
           )}
           {isEnded && (
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center overflow-hidden">
-              <div className={`
-                px-8 py-2 rotate-[-30deg] font-black text-2xl tracking-widest border-4 select-none
-                ${isSold
-                  ? 'text-red-500 border-red-500'
-                  : 'text-gray-300 border-gray-300'}
-              `}>
-                {isSold ? 'SOLD' : 'ENDED'}
-              </div>
+            <div className="absolute inset-0 flex items-center justify-center overflow-hidden"
+              style={{ background: isSold ? 'rgba(0,0,0,0.45)' : 'rgba(0,0,0,0.55)' }}
+            >
+              {isSold ? (
+                <div className="rotate-[-22deg] select-none px-7 py-2.5 text-center"
+                  style={{
+                    background: 'linear-gradient(135deg, #B8902A, #e6b84a)',
+                    boxShadow: '0 4px 24px rgba(184,144,42,0.5), inset 0 1px 0 rgba(255,255,255,0.2)',
+                    letterSpacing: '0.3em',
+                  }}
+                >
+                  <span className="font-black text-white text-xl" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>
+                    SOLD
+                  </span>
+                </div>
+              ) : (
+                <div className="rotate-[-22deg] select-none px-7 py-2.5 text-center"
+                  style={{
+                    background: 'rgba(255,255,255,0.08)',
+                    border: '2px solid rgba(255,255,255,0.5)',
+                    backdropFilter: 'blur(4px)',
+                    letterSpacing: '0.3em',
+                  }}
+                >
+                  <span className="font-bold text-white/80 text-xl" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+                    ENDED
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>
