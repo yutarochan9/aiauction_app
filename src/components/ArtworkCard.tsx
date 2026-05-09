@@ -68,32 +68,25 @@ export default function ArtworkCard({ artwork, locale }: { artwork: Artwork; loc
             <div className="absolute inset-0 flex items-center justify-center overflow-hidden"
               style={{ background: isSold ? 'rgba(0,0,0,0.45)' : 'rgba(0,0,0,0.55)' }}
             >
-              {isSold ? (
-                <div className="rotate-[-22deg] select-none px-7 py-2.5 text-center"
+              <div className="rotate-[-22deg] select-none text-center"
+                style={{
+                  padding: '10px 52px',
+                  background: isSold ? 'rgba(180,30,30,0.18)' : 'rgba(255,255,255,0.08)',
+                  border: isSold ? '2px solid rgba(220,60,60,0.7)' : '2px solid rgba(255,255,255,0.5)',
+                  backdropFilter: 'blur(4px)',
+                  letterSpacing: '0.38em',
+                }}
+              >
+                <span
+                  className="font-bold text-2xl"
                   style={{
-                    background: 'linear-gradient(135deg, #B8902A, #e6b84a)',
-                    boxShadow: '0 4px 24px rgba(184,144,42,0.5), inset 0 1px 0 rgba(255,255,255,0.2)',
-                    letterSpacing: '0.3em',
+                    color: isSold ? 'rgba(255,100,100,0.95)' : 'rgba(255,255,255,0.8)',
+                    textShadow: '0 1px 4px rgba(0,0,0,0.5)',
                   }}
                 >
-                  <span className="font-black text-white text-xl" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>
-                    SOLD
-                  </span>
-                </div>
-              ) : (
-                <div className="rotate-[-22deg] select-none px-7 py-2.5 text-center"
-                  style={{
-                    background: 'rgba(255,255,255,0.08)',
-                    border: '2px solid rgba(255,255,255,0.5)',
-                    backdropFilter: 'blur(4px)',
-                    letterSpacing: '0.3em',
-                  }}
-                >
-                  <span className="font-bold text-white/80 text-xl" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
-                    ENDED
-                  </span>
-                </div>
-              )}
+                  {isSold ? 'SOLD' : 'ENDED'}
+                </span>
+              </div>
             </div>
           )}
         </div>
