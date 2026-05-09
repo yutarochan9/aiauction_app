@@ -138,7 +138,7 @@ export default async function MyPage({
       {artworks.length === 0 ? (
         <div className="text-center py-24 text-gray-400">{EMPTY[tab]}</div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
           {artworks.map((artwork) => (
             <ArtworkCard
               key={artwork.id}

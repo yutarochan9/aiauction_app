@@ -91,8 +91,8 @@ export default function ArtworkCard({
   }
 
   return (
-    <Link href={`/auction/${artwork.id}`} className="group block">
-      <div className="bg-white rounded-xl overflow-hidden border border-stone-200 hover:border-[#B8902A] transition-colors">
+    <Link href={`/auction/${artwork.id}`} className="group block cursor-pointer">
+      <div className="bg-white rounded-xl overflow-hidden border border-stone-200 hover:border-[#B8902A] hover:shadow-sm transition-all">
         {/* 画像（右クリック・長押し禁止） */}
         <div
           className="aspect-square relative overflow-hidden bg-stone-100"
@@ -151,15 +151,15 @@ export default function ArtworkCard({
         </div>
 
         {/* 情報 */}
-        <div className="p-4">
-          <h3 className="font-semibold text-gray-900 truncate mb-3">{title}</h3>
-          <p className="text-lg font-bold text-[#B8902A]">
+        <div className="p-3">
+          <h3 className="font-semibold text-gray-900 truncate mb-2 text-sm">{title}</h3>
+          <p className="text-base font-bold text-[#B8902A]">
             ${artwork.current_price.toLocaleString()}
           </p>
-          <p className="text-xs text-gray-300 mb-1">
+          <p className="text-xs text-gray-300 mb-0.5">
             Starting ${artwork.starting_price.toLocaleString()}
           </p>
-          <p className="text-xs text-gray-400 mb-3">
+          <p className="text-xs text-gray-400 mb-2">
             {bidCount} {t('bidCount')} · {isEnded ? (isSold ? t('sold') : isHold ? 'On hold' : t('ended')) : timeLeft}
             {(artwork.view_count ?? 0) > 0 && <span className="text-gray-300"> · 👁 {artwork.view_count}</span>}
           </p>

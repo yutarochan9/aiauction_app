@@ -173,7 +173,7 @@ export default async function HomePage({
       {filteredArtworks.length === 0 ? (
         <div className="text-center py-24 text-gray-400">{emptyMessage}</div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
           {filteredArtworks.map((artwork) => (
             <ArtworkCard key={artwork.id} artwork={artwork as any} locale={locale} isLiked={likedIds.has(artwork.id)} />
           ))}
