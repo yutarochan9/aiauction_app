@@ -209,7 +209,16 @@ export default function BidSection({
       </div>
 
       {/* 入札フォーム */}
-      {!isEnded && !isOwner && currentUser && !isBlacklisted && (
+      {isScheduled && (
+        <div className="bg-stone-100 rounded-xl p-4 text-center">
+          <p className="text-xs text-gray-400 mb-1">Auction starts</p>
+          <p className="text-lg font-semibold text-gray-700">
+            {new Date(artwork.start_at).toLocaleString([], { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+          </p>
+        </div>
+      )}
+
+      {!isEnded && !isScheduled && !isOwner && currentUser && !isBlacklisted && (
         <div className="space-y-3">
           <div className="flex gap-3">
             <div className="relative flex-1">

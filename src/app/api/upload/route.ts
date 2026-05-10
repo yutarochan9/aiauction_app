@@ -65,22 +65,7 @@ export async function POST(request: NextRequest) {
 
     const { width = 600, height = 600 } = await sharp(resized).metadata()
 
-    // 透かしSVGをサムネイルサイズに合わせて生成
-    const cols = Math.ceil(width / 120) + 2
-    const rows = Math.ceil(height / 28) + 2
-    const texts = Array.from({ length: rows * cols }, (_, i) => {
-      const col = i % cols
-      const row = Math.floor(i / cols)
-      const x = col * 120 - 20
-      const y = row * 28 + 20
-      return `<text x="${x}" y="${y}" transform="rotate(-25 ${x + 45} ${y})" font-family="sans-serif" font-size="11" font-weight="bold" fill="rgba(255,255,255,0.22)" letter-spacing="4">&#xA9; AIAII</text>`
-    }).join('')
-    const wmSvg = Buffer.from(
-      `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">${texts}</svg>`
-    )
-
     thumbnail = await sharp(resized)
-      .composite([{ input: wmSvg }])
       .webp({ quality: 80 })
       .toBuffer()
   } catch (e) {
