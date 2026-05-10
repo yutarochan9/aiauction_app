@@ -12,21 +12,11 @@ export default function Navbar() {
   const t = useTranslations('nav')
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
-  const [locale, setLocale] = useState('en')
 
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data }) => setUser(data.user))
-    const match = document.cookie.match(/locale=([^;]+)/)
-    if (match) setLocale(match[1])
   }, [])
-
-  const toggleLocale = () => {
-    const next = locale === 'ja' ? 'en' : 'ja'
-    document.cookie = `locale=${next}; path=/; max-age=31536000`
-    setLocale(next)
-    router.refresh()
-  }
 
   const handleLogout = async () => {
     await fetch('/auth/logout', { method: 'POST' })
@@ -69,14 +59,6 @@ export default function Navbar() {
 
           {/* 通知ベル */}
           <NotificationBell user={user} />
-
-          {/* 言語切り替え */}
-          <button
-            onClick={toggleLocale}
-            className="text-xs px-3 py-1 border border-neutral-700 rounded-full text-neutral-400 hover:text-white hover:border-neutral-500 transition-colors"
-          >
-            {locale === 'ja' ? 'EN' : '日本語'}
-          </button>
 
           {/* ログイン・ログアウト */}
           {user ? (
