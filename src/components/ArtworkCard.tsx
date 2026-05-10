@@ -95,7 +95,7 @@ export default function ArtworkCard({
 
   return (
     <Link href={`/auction/${artwork.id}`} className="group block cursor-pointer">
-      <div className="bg-white rounded-xl overflow-hidden border border-stone-200 hover:border-[#B8902A] hover:shadow-sm transition-all">
+      <div className="bg-white rounded-xl overflow-hidden border border-stone-200 hover:border-[#B8902A] hover:shadow-sm transition-all flex flex-col">
         {/* 画像（右クリック・長押し禁止） */}
         <div
           className="aspect-square relative overflow-hidden bg-stone-100"
@@ -156,7 +156,7 @@ export default function ArtworkCard({
         </div>
 
         {/* 情報 */}
-        <div className="p-3">
+        <div className="p-3 flex flex-col flex-1">
           <h3 className="font-semibold text-gray-900 truncate mb-2 text-sm">{title}</h3>
           <p className="text-base font-bold text-[#B8902A]">
             ${artwork.current_price.toLocaleString()}
@@ -192,15 +192,13 @@ export default function ArtworkCard({
               {likeCount > 0 && <span>{likeCount}</span>}
             </button>
           </div>
-          {artwork.tags && artwork.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2">
-              {artwork.tags.slice(0, 2).map((tag) => (
-                <span key={tag} className="text-[10px] text-gray-400 bg-stone-50 border border-stone-200 px-2 py-0.5 rounded-full">
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
+          <div className="flex flex-wrap gap-1 mt-2 min-h-[20px]">
+            {artwork.tags?.slice(0, 2).map((tag) => (
+              <span key={tag} className="text-[10px] text-gray-400 bg-stone-50 border border-stone-200 px-2 py-0.5 rounded-full">
+                #{tag}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </Link>
