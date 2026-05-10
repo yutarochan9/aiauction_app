@@ -89,7 +89,8 @@ export default function BidSection({
     }
   }
 
-  const isEnded = artwork.status !== 'active' || new Date(artwork.end_at) <= new Date()
+  const isScheduled = artwork.status === 'scheduled'
+  const isEnded = !isScheduled && (artwork.status !== 'active' || new Date(artwork.end_at) <= new Date())
   const isOwner = currentUser?.id === artwork.user_id
   const isSold = artwork.status === 'sold'
   const topBidder = bids[0]
@@ -185,9 +186,9 @@ export default function BidSection({
             </p>
           </div>
           <div className="text-right">
-            <p className="text-xs text-gray-400 mb-1">{t('timeLeft')}</p>
-            <p className={`text-2xl font-bold ${isEnded ? 'text-gray-400' : 'text-[#B8902A]'}`}>
-              {isEnded ? t('ended') : timeLeft}
+            <p className="text-xs text-gray-400 mb-1">{isScheduled ? 'Starts' : t('timeLeft')}</p>
+            <p className={`text-2xl font-bold ${isEnded ? 'text-gray-400' : isScheduled ? 'text-blue-400' : 'text-[#B8902A]'}`}>
+              {isScheduled ? new Date(artwork.start_at).toLocaleDateString() : isEnded ? t('ended') : timeLeft}
             </p>
           </div>
         </div>
