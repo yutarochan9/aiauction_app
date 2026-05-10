@@ -61,6 +61,9 @@ export default function Navbar() {
               <Link href="/mypage" className="text-neutral-400 hover:text-white transition-colors text-sm">
                 My Page
               </Link>
+              <Link href="/settings" className="text-neutral-400 hover:text-white transition-colors text-sm">
+                Settings
+              </Link>
             </>
           )}
 
