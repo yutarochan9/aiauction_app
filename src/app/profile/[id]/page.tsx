@@ -87,6 +87,19 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
               <p className="text-xs text-gray-300 mb-2">{t('snsVerifyBadgeNote')}</p>
             )}
             {profile.bio && <p className="text-gray-400 text-sm">{profile.bio}</p>}
+            {profile.sns_url && (
+              <a
+                href={profile.sns_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-[#B8902A] hover:underline mt-1"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                {profile.sns_url.replace(/^https?:\/\//, '')}
+              </a>
+            )}
 
             {/* 実績 */}
             <div className="flex gap-6 mt-3 text-sm flex-wrap">
