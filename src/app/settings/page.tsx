@@ -85,16 +85,7 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-8 pb-16">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="bg-[#2C2C2C] hover:bg-[#3C3C3C] disabled:bg-stone-200 text-white text-sm font-semibold px-6 py-2 rounded-xl transition-colors"
-        >
-          {saving ? 'Saving...' : status === 'saved' ? 'Saved ✓' : 'Save'}
-        </button>
-      </div>
+      <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
 
       {status === 'error' && (
         <p className="text-red-500 text-sm">Failed to save. Please try again.</p>
