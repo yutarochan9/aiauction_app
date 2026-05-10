@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       const row = Math.floor(i / cols)
       const x = col * 120 - 20
       const y = row * 28 + 20
-      return `<text x="${x}" y="${y}" transform="rotate(-28 ${x + 45} ${y})" font-family="sans-serif" font-size="12" font-weight="bold" fill="rgba(255,255,255,0.28)" letter-spacing="3">AIAII</text>`
+      return `<text x="${x}" y="${y}" transform="rotate(-25 ${x + 45} ${y})" font-family="sans-serif" font-size="11" font-weight="bold" fill="rgba(255,255,255,0.22)" letter-spacing="4">&#xA9; AIAII</text>`
     }).join('')
     const wmSvg = Buffer.from(
       `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">${texts}</svg>`
