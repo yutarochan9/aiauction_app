@@ -55,6 +55,12 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
 
   if (!artwork) notFound()
 
+  // 予定時間を過ぎたscheduledオークションを自動でactiveに
+  if (artwork.status === 'scheduled' && new Date(artwork.start_at) <= new Date()) {
+    await supabase.from('artworks').update({ status: 'active' }).eq('id', id)
+    artwork.status = 'active'
+  }
+
   // 入札履歴取得（新しい順）
   const { data: bids } = await supabase
     .from('bids')
