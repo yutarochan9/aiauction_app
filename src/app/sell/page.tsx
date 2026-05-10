@@ -25,6 +25,7 @@ export default function SellPage() {
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const submittingRef = useRef(false)
   const [error, setError] = useState('')
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
@@ -59,6 +60,7 @@ export default function SellPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (submittingRef.current) return
     setError('')
 
     if (!file) return setError('Please select an image')
@@ -69,6 +71,7 @@ export default function SellPage() {
     const startAt = startDate ? `${startDate}T${startTime}` : ''
     if (scheduled && new Date(startAt) <= new Date()) return setError('Start time must be in the future')
 
+    submittingRef.current = true
     setSubmitting(true)
 
     try {
@@ -112,6 +115,7 @@ export default function SellPage() {
     } catch (err: any) {
       setError(err.message ?? 'An error occurred')
     } finally {
+      submittingRef.current = false
       setSubmitting(false)
     }
   }
