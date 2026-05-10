@@ -186,9 +186,9 @@ export default function BidSection({
             </p>
           </div>
           <div className="text-right">
-            <p className="text-xs text-gray-400 mb-1">{isScheduled ? 'Starts' : t('timeLeft')}</p>
-            <p className={`text-2xl font-bold ${isEnded ? 'text-gray-400' : isScheduled ? 'text-blue-400' : 'text-[#B8902A]'}`}>
-              {isScheduled ? new Date(artwork.start_at).toLocaleString([], { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : isEnded ? t('ended') : timeLeft}
+            <p className="text-xs text-gray-400 mb-1">{t('timeLeft')}</p>
+            <p className={`text-2xl font-bold ${isEnded || isScheduled ? 'text-gray-400' : 'text-[#B8902A]'}`}>
+              {isScheduled ? '—' : isEnded ? t('ended') : timeLeft}
             </p>
           </div>
         </div>

@@ -12,8 +12,8 @@ export default function WatermarkOverlay({ dense = false }: { dense?: boolean })
             id="wm"
             x="0"
             y="0"
-            width="130"
-            height="44"
+            width="100"
+            height="34"
             patternTransform="rotate(-25)"
             patternUnits="userSpaceOnUse"
           >

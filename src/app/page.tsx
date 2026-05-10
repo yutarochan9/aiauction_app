@@ -46,6 +46,13 @@ export default async function HomePage({
   }
   const { column, ascending } = orderMap[sort]
 
+  // 時間が来たscheduledオークションを自動でactiveに
+  await supabase
+    .from('artworks')
+    .update({ status: 'active' })
+    .eq('status', 'scheduled')
+    .lte('start_at', now)
+
   let query = supabase
     .from('artworks')
     .select('*, bids(count), likes(count)')
