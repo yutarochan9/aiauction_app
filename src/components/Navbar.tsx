@@ -12,10 +12,21 @@ export default function Navbar() {
   const t = useTranslations('nav')
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data }) => setUser(data.user))
+    supabase.auth.getUser().then(async ({ data }) => {
+      setUser(data.user)
+      if (data.user) {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('avatar_url')
+          .eq('id', data.user.id)
+          .single()
+        setAvatarUrl(profile?.avatar_url ?? data.user.user_metadata?.avatar_url ?? null)
+      }
+    })
   }, [])
 
   const handleLogout = async () => {
@@ -64,9 +75,9 @@ export default function Navbar() {
           {user ? (
             <div className="flex items-center gap-3">
               <Link href={`/profile/${user.id}`}>
-                {user.user_metadata?.avatar_url ? (
+                {avatarUrl ? (
                   <img
-                    src={user.user_metadata.avatar_url}
+                    src={avatarUrl}
                     alt="avatar"
                     className="w-8 h-8 rounded-full object-cover"
                   />

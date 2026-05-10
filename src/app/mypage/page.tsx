@@ -178,7 +178,7 @@ export default async function MyPage({
               {chartDays.map(([day, val]) => (
                 <div
                   key={day}
-                  className="flex-1 rounded-sm transition-all"
+                  className="flex-1 transition-all"
                   style={{
                     height: `${Math.max((val / maxRevenue) * 100, val > 0 ? 8 : 2)}%`,
                     background: val > 0 ? '#B8902A' : '#e7e5e4',
