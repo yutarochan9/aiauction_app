@@ -11,6 +11,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
   const locale = await getLocale()
   const supabase = await createClient()
 
+  const ROLE_LABELS: Record<string, string> = {
+    identity_holder: 'Identity Holder',
+    creator: 'Creator',
+    buyer: 'Buyer',
+  }
+
   // ユーザー情報取得
   const { data: profile } = await supabase
     .from('users')
@@ -75,13 +81,18 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
             </div>
           )}
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-1">
+            <div className="flex items-center gap-3 mb-1 flex-wrap">
               <h1 className="text-xl font-bold text-gray-900">{profile.display_name}</h1>
               {profile.sns_verified && (
                 <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full flex items-center gap-1">
                   ✓ {t('snsVerified')}
                 </span>
               )}
+              {(profile.roles ?? []).map((role: string) => (
+                <span key={role} className="text-xs bg-stone-100 text-gray-500 px-2 py-0.5 rounded-full">
+                  {ROLE_LABELS[role] ?? role}
+                </span>
+              ))}
             </div>
             {profile.sns_verified && (
               <p className="text-xs text-gray-300 mb-2">{t('snsVerifyBadgeNote')}</p>
@@ -98,6 +109,19 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                 </svg>
                 {profile.sns_url.replace(/^https?:\/\//, '')}
+              </a>
+            )}
+            {profile.portfolio_url && (profile.roles ?? []).includes('creator') && (
+              <a
+                href={profile.portfolio_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-gray-400 hover:underline mt-1 ml-3"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                Portfolio
               </a>
             )}
 

@@ -8,6 +8,8 @@ type Profile = {
   bio: string
   avatar_url: string
   sns_url: string
+  portfolio_url: string
+  roles: string[]
 }
 
 type NotifSettings = {
@@ -34,6 +36,27 @@ const NOTIFICATION_ITEMS = [
   { key: 'follow_listed',    label: 'New listing from followed artist', desc: 'An artist you follow lists a new artwork' },
 ]
 
+const ROLES = [
+  {
+    key: 'identity_holder',
+    label: 'Identity Holder',
+    desc: 'You own the rights to a face, voice, or character and want to license it',
+    icon: '👤',
+  },
+  {
+    key: 'creator',
+    label: 'Creator',
+    desc: 'You use AI tools to build avatars and sell them on behalf of identity holders',
+    icon: '🎨',
+  },
+  {
+    key: 'buyer',
+    label: 'Buyer',
+    desc: 'You want to purchase AI avatar usage rights at auction',
+    icon: '🛒',
+  },
+]
+
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <button
@@ -48,7 +71,9 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 
 export default function SettingsPage() {
   const fileRef = useRef<HTMLInputElement>(null)
-  const [profile, setProfile] = useState<Profile>({ display_name: '', bio: '', avatar_url: '', sns_url: '' })
+  const [profile, setProfile] = useState<Profile>({
+    display_name: '', bio: '', avatar_url: '', sns_url: '', portfolio_url: '', roles: [],
+  })
   const [notif, setNotif] = useState<NotifSettings>(DEFAULT_NOTIF)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -61,9 +86,20 @@ export default function SettingsPage() {
     Promise.all([
       supabase.auth.getUser().then(async ({ data }) => {
         if (!data.user) return
-        const { data: prof } = await supabase.from('users').select('display_name, bio, avatar_url, sns_url').eq('id', data.user.id).single()
+        const { data: prof } = await supabase
+          .from('users')
+          .select('display_name, bio, avatar_url, sns_url, portfolio_url, roles')
+          .eq('id', data.user.id)
+          .single()
         if (prof) {
-          setProfile({ display_name: prof.display_name ?? '', bio: prof.bio ?? '', avatar_url: prof.avatar_url ?? '', sns_url: prof.sns_url ?? '' })
+          setProfile({
+            display_name: prof.display_name ?? '',
+            bio: prof.bio ?? '',
+            avatar_url: prof.avatar_url ?? '',
+            sns_url: prof.sns_url ?? '',
+            portfolio_url: prof.portfolio_url ?? '',
+            roles: prof.roles ?? [],
+          })
           setAvatarPreview(prof.avatar_url ?? '')
         }
       }),
@@ -72,6 +108,14 @@ export default function SettingsPage() {
       }),
     ]).finally(() => setLoading(false))
   }, [])
+
+  const toggleRole = (role: string) => {
+    setProfile(p => ({
+      ...p,
+      roles: p.roles.includes(role) ? p.roles.filter(r => r !== role) : [...p.roles, role],
+    }))
+    setStatus('idle')
+  }
 
   const setN = (key: keyof NotifSettings, value: boolean) => {
     setNotif(prev => ({ ...prev, [key]: value }))
@@ -122,6 +166,8 @@ export default function SettingsPage() {
 
   if (loading) return <div className="max-w-2xl mx-auto py-12 text-gray-400 text-sm">Loading...</div>
 
+  const isCreator = profile.roles.includes('creator')
+
   return (
     <div className="max-w-2xl mx-auto space-y-8 pb-16">
       <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
@@ -168,7 +214,7 @@ export default function SettingsPage() {
           <input
             type="text"
             value={profile.display_name}
-            onChange={e => setProfile(p => ({ ...p, display_name: e.target.value }))}
+            onChange={e => { setProfile(p => ({ ...p, display_name: e.target.value })); setStatus('idle') }}
             placeholder="Your name"
             className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:border-[#B8902A]"
           />
@@ -179,7 +225,7 @@ export default function SettingsPage() {
           <label className="block text-xs text-gray-500 mb-1.5">Bio</label>
           <textarea
             value={profile.bio}
-            onChange={e => setProfile(p => ({ ...p, bio: e.target.value }))}
+            onChange={e => { setProfile(p => ({ ...p, bio: e.target.value })); setStatus('idle') }}
             rows={3}
             placeholder="Tell people about yourself..."
             className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:border-[#B8902A] resize-none"
@@ -192,11 +238,65 @@ export default function SettingsPage() {
           <input
             type="url"
             value={profile.sns_url}
-            onChange={e => setProfile(p => ({ ...p, sns_url: e.target.value }))}
+            onChange={e => { setProfile(p => ({ ...p, sns_url: e.target.value })); setStatus('idle') }}
             placeholder="https://..."
             className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:border-[#B8902A]"
           />
         </div>
+      </section>
+
+      {/* ロール選択 */}
+      <section className="bg-white rounded-2xl border border-stone-200 p-6 space-y-4">
+        <div>
+          <h2 className="text-base font-semibold text-gray-900">Your Roles</h2>
+          <p className="text-xs text-gray-400 mt-1">Select all that apply. You can have multiple roles.</p>
+        </div>
+        <div className="space-y-3">
+          {ROLES.map(({ key, label, desc, icon }) => {
+            const active = profile.roles.includes(key)
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => toggleRole(key)}
+                className={`w-full flex items-start gap-4 p-4 rounded-xl border-2 text-left transition-colors ${
+                  active
+                    ? 'border-[#B8902A] bg-amber-50'
+                    : 'border-stone-200 hover:border-stone-300'
+                }`}
+              >
+                <span className="text-2xl shrink-0 mt-0.5">{icon}</span>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <p className={`text-sm font-semibold ${active ? 'text-[#B8902A]' : 'text-gray-900'}`}>{label}</p>
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                      active ? 'border-[#B8902A] bg-[#B8902A]' : 'border-stone-300'
+                    }`}>
+                      {active && <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>}
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-0.5">{desc}</p>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* クリエイターのポートフォリオURL */}
+        {isCreator && (
+          <div>
+            <label className="block text-xs text-gray-500 mb-1.5">Portfolio URL <span className="text-gray-300">(shown to identity holders when you apply)</span></label>
+            <input
+              type="url"
+              value={profile.portfolio_url}
+              onChange={e => { setProfile(p => ({ ...p, portfolio_url: e.target.value })); setStatus('idle') }}
+              placeholder="https://..."
+              className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:border-[#B8902A]"
+            />
+          </div>
+        )}
       </section>
 
       {/* プッシュ通知設定 */}
