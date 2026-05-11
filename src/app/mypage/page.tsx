@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import ArtworkCard from '@/components/ArtworkCard'
 
-type Tab = 'bidding' | 'selling' | 'won' | 'liked' | 'following'
+type Tab = 'bidding' | 'selling' | 'won' | 'liked' | 'following' | 'approvals'
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'bidding',   label: 'Bidding' },
@@ -12,6 +12,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'won',       label: 'Won' },
   { key: 'liked',     label: 'Liked' },
   { key: 'following', label: 'Following' },
+  { key: 'approvals', label: 'Approvals' },
 ]
 
 const EMPTY: Record<Tab, string> = {
@@ -20,6 +21,7 @@ const EMPTY: Record<Tab, string> = {
   won:       'No won items yet',
   liked:     'No liked artworks yet',
   following: "Follow artists to see their new listings here",
+  approvals: 'No avatars pending your approval',
 }
 
 export default async function MyPage({
@@ -130,6 +132,16 @@ export default async function MyPage({
         .order('created_at', { ascending: false })
       artworks = data ?? []
     }
+  } else if (tab === 'approvals') {
+    // 自分がIdentity Holderで承認待ちのアバター
+    const { data } = await supabase
+      .from('artworks')
+      .select('*, bids(count), likes(count)')
+      .eq('identity_holder_id', user.id)
+      .eq('agreement_status', 'pending')
+      .neq('creator_id', user.id)
+      .order('created_at', { ascending: false })
+    artworks = data ?? []
   }
 
   // ハートボタン表示用のいいね済みIDセット
@@ -216,6 +228,30 @@ export default async function MyPage({
       {/* コンテンツ */}
       {artworks.length === 0 ? (
         <div className="text-center py-24 text-gray-400">{EMPTY[tab]}</div>
+      ) : tab === 'approvals' ? (
+        <div className="space-y-3">
+          {artworks.map((artwork) => (
+            <Link
+              key={artwork.id}
+              href={`/agreement/${artwork.id}`}
+              className="flex items-center gap-4 bg-white border border-stone-200 hover:border-[#B8902A] rounded-xl p-4 transition-colors"
+            >
+              <div className="w-14 h-14 rounded-lg overflow-hidden bg-stone-100 shrink-0">
+                {artwork.image_url
+                  ? <img src={artwork.image_url} alt="" className="w-full h-full object-cover" />
+                  : <div className="w-full h-full flex items-center justify-center text-gray-300 text-xs">No img</div>
+                }
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">{artwork.title_en}</p>
+                <p className="text-xs text-gray-400 mt-0.5">Starting at ${artwork.starting_price}</p>
+              </div>
+              <span className="text-xs bg-amber-100 text-amber-700 px-3 py-1 rounded-full font-semibold shrink-0">
+                Pending Approval
+              </span>
+            </Link>
+          ))}
+        </div>
       ) : (
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
           {artworks.map((artwork) => (
@@ -231,3 +267,4 @@ export default async function MyPage({
     </div>
   )
 }
+
