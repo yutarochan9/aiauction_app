@@ -123,7 +123,7 @@ export default function SellPage() {
     if (scheduled && !startDate) return setError('Please set a start date/time')
     if (scheduled && new Date(`${startDate}T${startTime}`) <= new Date()) return setError('Start time must be in the future')
     if (!isSelfHolder && !selectedHolder) return setError('Please select an identity holder or mark yourself')
-    if (isSelfHolder && !identityVerified) return setError('You must verify your identity before listing yourself as the identity holder.')
+
 
     submittingRef.current = true
     setSubmitting(true)
@@ -208,6 +208,25 @@ export default function SellPage() {
   }
 
   const selectedFormat = FILE_FORMATS.find(f => f.value === fileFormat)!
+
+  if (!identityVerified) {
+    return (
+      <div className="max-w-md mx-auto py-16 px-4 text-center">
+        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-5 text-2xl">🪪</div>
+        <h1 className="text-xl font-bold text-gray-900 mb-2">Identity Verification Required</h1>
+        <p className="text-gray-500 text-sm mb-6">
+          You must verify your identity before listing an avatar. This protects buyers and ensures accountability on the platform.
+        </p>
+        <a
+          href="/verify"
+          className="inline-block bg-[#B8902A] hover:bg-[#9a7a24] text-white font-semibold px-8 py-3 rounded-xl transition-colors"
+        >
+          Verify My Identity →
+        </a>
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-xl mx-auto py-4">
       <h1 className="text-2xl font-bold text-gray-900 mb-8">List Avatar</h1>
@@ -354,19 +373,6 @@ export default function SellPage() {
             />
             <span className="text-sm text-gray-600">I am the identity holder (no approval needed)</span>
           </label>
-
-          {isSelfHolder && !identityVerified && (
-            <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-              <span className="text-amber-500 text-base shrink-0">🪪</span>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-amber-800">Identity verification required</p>
-                <p className="text-xs text-amber-700 mt-0.5">You need to verify your identity before listing yourself as the identity holder.</p>
-              </div>
-              <a href="/verify" className="shrink-0 text-xs font-semibold bg-[#B8902A] hover:bg-[#9a7a24] text-white px-3 py-1.5 rounded-lg transition-colors">
-                Verify →
-              </a>
-            </div>
-          )}
 
           {!isSelfHolder && (
             <div className="relative">
