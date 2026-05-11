@@ -8,11 +8,11 @@
   },
   "home": {
     "title": "AIAII",
-    "subtitle": "A marketplace to buy and sell AI-generated artwork",
+    "subtitle": "The marketplace for AI avatar rights — buy, sell, and commission unique AI-generated avatars",
     "sortNew": "Newest",
     "sortEndingSoon": "Ending Soon",
     "sortPrice": "Price",
-    "noArtworks": "No artworks listed yet"
+    "noArtworks": "No avatars listed yet"
   },
   "auction": {
     "currentPrice": "Current Bid",
@@ -24,7 +24,7 @@
     "bidHistory": "Bid History",
     "ended": "Auction Ended",
     "sold": "Sold",
-    "protectedNotice": "This artwork is protected with a unique buyer ID",
+    "protectedNotice": "This avatar is protected with a unique buyer ID",
     "noBids": "No bids yet",
     "yourBid": "Your bid"
   },

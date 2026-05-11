@@ -40,6 +40,17 @@ export default async function AgreementPage({
   const isCreator = user.id === artwork.creator_id
   if (!isHolder && !isCreator) redirect('/')
 
+  // 身元確認ステータス取得（holderのみ）
+  let holderVerified = false
+  if (isHolder) {
+    const { data: holderUser } = await supabase
+      .from('users')
+      .select('identity_verified')
+      .eq('id', user.id)
+      .single()
+    holderVerified = !!(holderUser as any)?.identity_verified
+  }
+
   const creator = artwork.users as any
   const isSubmittedView = submitted === '1' && isCreator
 
@@ -49,6 +60,23 @@ export default async function AgreementPage({
 
   return (
     <div className="max-w-2xl mx-auto py-4">
+      {/* 身元確認未完了バナー（Identity Holder向け） */}
+      {isHolder && !holderVerified && agreement?.status === 'pending' && (
+        <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl px-5 py-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold text-amber-800">🪪 Identity Verification Required</p>
+              <p className="text-xs text-amber-700 mt-1">
+                Please verify your identity before approving avatar agreements. This protects your rights and builds trust with creators.
+              </p>
+            </div>
+            <a href="/verify" className="shrink-0 text-xs font-semibold bg-[#B8902A] hover:bg-[#9a7a24] text-white px-4 py-2 rounded-lg transition-colors">
+              Verify →
+            </a>
+          </div>
+        </div>
+      )}
+
       {/* 提出完了バナー（クリエイター向け） */}
       {isSubmittedView && (
         <div className="mb-6 bg-green-50 border border-green-200 rounded-xl px-5 py-4">

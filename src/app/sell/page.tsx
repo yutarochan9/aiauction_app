@@ -60,7 +60,7 @@ export default function SellPage() {
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(async ({ data }) => {
-      if (!data.user) return
+      if (!data.user) { router.replace('/auth/login'); return }
       const { data: prof } = await supabase.from('users').select('roles').eq('id', data.user.id).single()
       setMyRoles(prof?.roles ?? [])
     })
@@ -182,6 +182,14 @@ export default function SellPage() {
           identity_holder_id: holderId,
           status: 'pending',
         })
+        // 身元確認者に通知
+        await supabase.from('notifications').insert({
+          user_id: holderId,
+          type: 'agreement_requested',
+          title: 'Avatar approval request',
+          body: `A creator is requesting your approval for "${title}". Please review and approve or request changes.`,
+          url: `/agreement/${data.id}`,
+        })
         router.push(`/agreement/${data.id}?submitted=1`)
       } else {
         router.push(`/auction/${data.id}`)
@@ -249,7 +257,7 @@ export default function SellPage() {
               <div className="text-gray-400">
                 <p className="text-3xl mb-3">{selectedFormat.icon}</p>
                 <p className="text-sm">Click or drag & drop to upload</p>
-                <p className="text-xs text-gray-300 mt-1">{selectedFormat.desc} · Max 50MB</p>
+                <p className="text-xs text-gray-300 mt-1">{selectedFormat.desc} · Max {fileFormat === 'image' ? '10MB' : '50MB'}</p>
               </div>
             )}
           </div>

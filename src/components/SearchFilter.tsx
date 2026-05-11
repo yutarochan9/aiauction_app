@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 
 const PRESET_TAGS = [
-  'abstract', 'portrait', 'landscape', 'cyberpunk', 'fantasy',
-  'anime', 'sci-fi', 'nature', 'minimalist', 'surreal',
+  'anime', 'realistic', 'fantasy', 'cyberpunk', 'vtuber',
+  'chibi', 'sci-fi', 'dark', 'cute', 'futuristic',
 ]
 
 export default function SearchFilter({
@@ -45,7 +45,7 @@ export default function SearchFilter({
           type="text"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search artworks..."
+          placeholder="Search avatars..."
           className="w-full bg-white border border-stone-200 rounded-xl pl-10 pr-10 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#B8902A] transition-colors text-sm"
         />
         {q && (

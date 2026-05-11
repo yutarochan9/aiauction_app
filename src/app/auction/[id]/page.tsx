@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     .eq('id', id)
     .single()
   if (!artwork) return { title: 'AIAII' }
-  const title = artwork.title_en || artwork.title_ja || 'Artwork'
+  const title = artwork.title_en || artwork.title_ja || 'Avatar'
   const description = artwork.description_en || artwork.description_ja || `Current bid: $${artwork.current_price}`
   const image = artwork.image_url
   return {

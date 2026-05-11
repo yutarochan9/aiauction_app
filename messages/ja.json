@@ -8,11 +8,11 @@
   },
   "home": {
     "title": "AIAII",
-    "subtitle": "A marketplace to buy and sell AI-generated artwork",
-    "sortNew": "Newest",
-    "sortEndingSoon": "Ending Soon",
-    "sortPrice": "Price",
-    "noArtworks": "No artworks listed yet"
+    "subtitle": "AIアバター権利のマーケットプレイス — ユニークなAIアバターを売買・依頼できます",
+    "sortNew": "新着順",
+    "sortEndingSoon": "終了間近",
+    "sortPrice": "価格順",
+    "noArtworks": "出品中のアバターはありません"
   },
   "auction": {
     "currentPrice": "Current Bid",

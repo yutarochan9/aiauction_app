@@ -116,7 +116,7 @@ export default async function HomePage({
     ? 'No upcoming auctions yet'
     : statusFilter === 'closed'
     ? 'No closed auctions'
-    : t('noArtworks')
+    : 'No avatars listed yet'
 
   return (
     <div>
@@ -125,13 +125,13 @@ export default async function HomePage({
         <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-2">
           {t('title')}
         </h1>
-        <p className="text-sm tracking-[0.35em] text-[#B8902A] uppercase font-semibold mb-6">AI Art Auction</p>
-        <p className="text-gray-400 text-lg mb-8">{t('subtitle')}</p>
+        <p className="text-sm tracking-[0.35em] text-[#B8902A] uppercase font-semibold mb-6">AI Avatar Auction</p>
+        <p className="text-gray-400 text-lg mb-8">The auction platform for AI avatar rights — buy, sell, and commission unique AI-generated avatars</p>
         <Link
           href="/sell"
           className="bg-[#2C2C2C] hover:bg-[#3C3C3C] text-white px-8 py-3 rounded-xl font-semibold transition-colors"
         >
-          List Artwork
+          List Avatar
         </Link>
       </div>
 

@@ -44,7 +44,7 @@ export default function SecondChanceSection({
   return (
     <section>
       <h2 className="text-lg font-semibold text-gray-900 mb-1">🎯 Second Chance Offers</h2>
-      <p className="text-xs text-gray-400 mb-4">The original winner didn't pay. You can purchase this artwork at your bid price.</p>
+      <p className="text-xs text-gray-400 mb-4">The original winner didn't pay. You can purchase this avatar at your bid price.</p>
       <div className="space-y-4">
         {offers.map((offer) => {
           const artwork = offer.artworks

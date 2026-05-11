@@ -83,6 +83,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-1 flex-wrap">
               <h1 className="text-xl font-bold text-gray-900">{profile.display_name}</h1>
+              {(profile as any).identity_verified && (
+                <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full flex items-center gap-1 font-semibold">
+                  🪪 ID Verified
+                </span>
+              )}
               {profile.sns_verified && (
                 <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full flex items-center gap-1">
                   ✓ {t('snsVerified')}
@@ -193,7 +198,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
       {/* 出品作品一覧 */}
       <h2 className="text-lg font-bold text-gray-900 mb-4">{t('listings')}</h2>
       {!artworks || artworks.length === 0 ? (
-        <p className="text-gray-300">No artworks listed yet</p>
+        <p className="text-gray-300">No avatars listed yet</p>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {artworks.map((artwork) => {

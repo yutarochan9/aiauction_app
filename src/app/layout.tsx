@@ -9,7 +9,7 @@ const geist = Geist({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'AIAII',
-  description: 'AIで生成したアート作品を売買できるマーケットプレイス / AI Art Auction Marketplace',
+  description: 'AIアバター権利のオークション — 唯一無二のAIアバターを売買・依頼 / AI Avatar Auction',
 }
 
 export default async function RootLayout({

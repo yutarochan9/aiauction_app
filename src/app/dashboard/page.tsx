@@ -91,7 +91,7 @@ export default async function DashboardPage() {
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900">{t('myListings')}</h2>
-          <Link href="/sell" className="text-sm text-[#B8902A]">+ List Artwork</Link>
+          <Link href="/sell" className="text-sm text-[#B8902A]">+ List Avatar</Link>
         </div>
         {!myArtworks?.length ? (
           <p className="text-gray-300 text-sm">No listings yet</p>

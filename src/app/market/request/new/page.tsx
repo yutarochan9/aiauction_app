@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 
 export default function NewRequestPage() {
   const router = useRouter()
@@ -12,6 +13,12 @@ export default function NewRequestPage() {
   const [deadline, setDeadline] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data }) => {
+      if (!data.user) router.replace('/auth/login')
+    })
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

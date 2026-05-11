@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 type Profile = {
@@ -30,10 +31,10 @@ const DEFAULT_NOTIF: NotifSettings = {
 
 const NOTIFICATION_ITEMS = [
   { key: 'outbid',           label: 'Outbid',                          desc: "Someone places a higher bid on an auction you're bidding on" },
-  { key: 'new_bid',          label: 'New bid on your listing',          desc: 'Someone places a bid on your artwork' },
+  { key: 'new_bid',          label: 'New bid on your listing',          desc: 'Someone places a bid on your avatar' },
   { key: 'won',              label: 'Auction won',                      desc: 'You win an auction' },
   { key: 'payment_deadline', label: 'Payment deadline',                desc: 'Reminder before your payment deadline expires' },
-  { key: 'follow_listed',    label: 'New listing from followed artist', desc: 'An artist you follow lists a new artwork' },
+  { key: 'follow_listed',    label: 'New listing from followed creator', desc: 'A creator you follow lists a new avatar' },
 ]
 
 const ROLES = [
@@ -70,6 +71,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 }
 
 export default function SettingsPage() {
+  const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
   const [profile, setProfile] = useState<Profile>({
     display_name: '', bio: '', avatar_url: '', sns_url: '', portfolio_url: '', roles: [],
@@ -80,15 +82,16 @@ export default function SettingsPage() {
   const [status, setStatus] = useState<'idle' | 'saved' | 'error'>('idle')
   const [avatarPreview, setAvatarPreview] = useState<string>('')
   const [uploading, setUploading] = useState(false)
+  const [verificationStatus, setVerificationStatus] = useState<string | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
     Promise.all([
       supabase.auth.getUser().then(async ({ data }) => {
-        if (!data.user) return
+        if (!data.user) { router.replace('/auth/login'); return }
         const { data: prof } = await supabase
           .from('users')
-          .select('display_name, bio, avatar_url, sns_url, portfolio_url, roles')
+          .select('display_name, bio, avatar_url, sns_url, portfolio_url, roles, identity_verified')
           .eq('id', data.user.id)
           .single()
         if (prof) {
@@ -101,6 +104,16 @@ export default function SettingsPage() {
             roles: prof.roles ?? [],
           })
           setAvatarPreview(prof.avatar_url ?? '')
+          if ((prof as any).identity_verified) {
+            setVerificationStatus('verified')
+          } else {
+            const { data: vr } = await supabase
+              .from('identity_verifications')
+              .select('status')
+              .eq('user_id', data.user!.id)
+              .maybeSingle()
+            setVerificationStatus(vr?.status ?? null)
+          }
         }
       }),
       fetch('/api/settings').then(r => r.json()).then(data => {
@@ -283,6 +296,62 @@ export default function SettingsPage() {
             )
           })}
         </div>
+
+        {/* Identity Holder 身元確認バナー */}
+        {profile.roles.includes('identity_holder') && (
+          <div className={`rounded-xl p-4 border ${
+            verificationStatus === 'verified'
+              ? 'bg-green-50 border-green-200'
+              : verificationStatus === 'pending' || verificationStatus === 'in_review'
+              ? 'bg-amber-50 border-amber-200'
+              : verificationStatus === 'rejected'
+              ? 'bg-red-50 border-red-200'
+              : 'bg-stone-50 border-stone-200'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {verificationStatus === 'verified' ? (
+                  <>
+                    <span className="text-green-600 text-lg">✓</span>
+                    <div>
+                      <p className="text-sm font-semibold text-green-800">Identity Verified</p>
+                      <p className="text-xs text-green-600">You can approve avatar creation agreements.</p>
+                    </div>
+                  </>
+                ) : verificationStatus === 'pending' || verificationStatus === 'in_review' ? (
+                  <>
+                    <span className="text-amber-500 text-lg">⏳</span>
+                    <div>
+                      <p className="text-sm font-semibold text-amber-800">Verification Under Review</p>
+                      <p className="text-xs text-amber-600">We are reviewing your documents. This usually takes 1-2 business days.</p>
+                    </div>
+                  </>
+                ) : verificationStatus === 'rejected' ? (
+                  <>
+                    <span className="text-red-500 text-lg">✗</span>
+                    <div>
+                      <p className="text-sm font-semibold text-red-800">Verification Failed</p>
+                      <p className="text-xs text-red-600">Your documents were not accepted. Please resubmit.</p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-gray-400 text-lg">🪪</span>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-800">Identity Verification Required</p>
+                      <p className="text-xs text-gray-500">Verify your identity to approve avatar agreements and protect your rights.</p>
+                    </div>
+                  </>
+                )}
+              </div>
+              {verificationStatus !== 'verified' && verificationStatus !== 'pending' && verificationStatus !== 'in_review' && (
+                <a href="/verify" className="shrink-0 text-xs font-semibold bg-[#2C2C2C] hover:bg-[#3C3C3C] text-white px-4 py-2 rounded-lg transition-colors">
+                  Verify Now →
+                </a>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* クリエイターのポートフォリオURL */}
         {isCreator && (
