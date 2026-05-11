@@ -36,12 +36,22 @@ export default function LoginPage() {
         setMessage('Confirmation email sent. Please check your inbox.')
       }
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      const { error, data } = await supabase.auth.signInWithPassword({ email, password })
       if (error) {
         setError('Invalid email or password')
-      } else {
-        router.push('/')
-        router.refresh()
+      } else if (data.user) {
+        // 身元確認が未提出なら /verify へ
+        const { data: vr } = await supabase
+          .from('identity_verifications')
+          .select('id')
+          .eq('user_id', data.user.id)
+          .maybeSingle()
+        if (!vr) {
+          router.push('/verify')
+        } else {
+          router.push('/')
+          router.refresh()
+        }
       }
     }
     setLoading(false)

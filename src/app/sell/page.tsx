@@ -52,7 +52,6 @@ export default function SellPage() {
   const [selectedHolder, setSelectedHolder] = useState<HolderResult | null>(null)
   const [holderSearching, setHolderSearching] = useState(false)
   const [isSelfHolder, setIsSelfHolder] = useState(false)
-  const [identityVerified, setIdentityVerified] = useState(false)
 
   // 収益分配
   const [splitCreator, setSplitCreator] = useState(10)
@@ -61,12 +60,6 @@ export default function SellPage() {
     const supabase = createClient()
     supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) { router.replace('/auth/login'); return }
-      const { data: prof } = await supabase
-        .from('users')
-        .select('identity_verified')
-        .eq('id', data.user.id)
-        .single()
-      setIdentityVerified(!!(prof as any)?.identity_verified)
     })
   }, [])
 
@@ -208,24 +201,6 @@ export default function SellPage() {
   }
 
   const selectedFormat = FILE_FORMATS.find(f => f.value === fileFormat)!
-
-  if (!identityVerified) {
-    return (
-      <div className="max-w-md mx-auto py-16 px-4 text-center">
-        <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-5 text-2xl">🪪</div>
-        <h1 className="text-xl font-bold text-gray-900 mb-2">Identity Verification Required</h1>
-        <p className="text-gray-500 text-sm mb-6">
-          You must verify your identity before listing an avatar. This protects buyers and ensures accountability on the platform.
-        </p>
-        <a
-          href="/verify"
-          className="inline-block bg-[#B8902A] hover:bg-[#9a7a24] text-white font-semibold px-8 py-3 rounded-xl transition-colors"
-        >
-          Verify My Identity →
-        </a>
-      </div>
-    )
-  }
 
   return (
     <div className="max-w-xl mx-auto py-4">

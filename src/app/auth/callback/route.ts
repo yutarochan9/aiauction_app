@@ -9,12 +9,20 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
+    const { error, data } = await supabase.auth.exchangeCodeForSession(code)
+    if (!error && data.user) {
+      // 身元確認が未提出なら /verify へ
+      const { data: vr } = await supabase
+        .from('identity_verifications')
+        .select('id')
+        .eq('user_id', data.user.id)
+        .maybeSingle()
+      if (!vr) {
+        return NextResponse.redirect(`${origin}/verify`)
+      }
       return NextResponse.redirect(`${origin}${next}`)
     }
   }
 
-  // エラー時はトップへリダイレクト
   return NextResponse.redirect(`${origin}/?error=auth`)
 }
