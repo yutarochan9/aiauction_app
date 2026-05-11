@@ -51,7 +51,10 @@ export default function Navbar() {
         {/* ナビリンク */}
         <div className="flex items-center gap-6">
           <Link href="/" className="text-neutral-400 hover:text-white transition-colors text-sm">
-            {t('home')}
+            Market
+          </Link>
+          <Link href="/market/request" className="text-neutral-400 hover:text-white transition-colors text-sm">
+            Requests
           </Link>
 
           {user && (
