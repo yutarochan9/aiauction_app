@@ -52,6 +52,7 @@ export default function SellPage() {
   const [selectedHolder, setSelectedHolder] = useState<HolderResult | null>(null)
   const [holderSearching, setHolderSearching] = useState(false)
   const [isSelfHolder, setIsSelfHolder] = useState(false)
+  const [identityVerified, setIdentityVerified] = useState(false)
 
   // 収益分配
   const [splitCreator, setSplitCreator] = useState(10)
@@ -60,6 +61,12 @@ export default function SellPage() {
     const supabase = createClient()
     supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) { router.replace('/auth/login'); return }
+      const { data: prof } = await supabase
+        .from('users')
+        .select('identity_verified')
+        .eq('id', data.user.id)
+        .single()
+      setIdentityVerified(!!(prof as any)?.identity_verified)
     })
   }, [])
 
@@ -116,6 +123,7 @@ export default function SellPage() {
     if (scheduled && !startDate) return setError('Please set a start date/time')
     if (scheduled && new Date(`${startDate}T${startTime}`) <= new Date()) return setError('Start time must be in the future')
     if (!isSelfHolder && !selectedHolder) return setError('Please select an identity holder or mark yourself')
+    if (isSelfHolder && !identityVerified) return setError('You must verify your identity before listing yourself as the identity holder.')
 
     submittingRef.current = true
     setSubmitting(true)
@@ -346,6 +354,19 @@ export default function SellPage() {
             />
             <span className="text-sm text-gray-600">I am the identity holder (no approval needed)</span>
           </label>
+
+          {isSelfHolder && !identityVerified && (
+            <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+              <span className="text-amber-500 text-base shrink-0">🪪</span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-amber-800">Identity verification required</p>
+                <p className="text-xs text-amber-700 mt-0.5">You need to verify your identity before listing yourself as the identity holder.</p>
+              </div>
+              <a href="/verify" className="shrink-0 text-xs font-semibold bg-[#B8902A] hover:bg-[#9a7a24] text-white px-3 py-1.5 rounded-lg transition-colors">
+                Verify →
+              </a>
+            </div>
+          )}
 
           {!isSelfHolder && (
             <div className="relative">
