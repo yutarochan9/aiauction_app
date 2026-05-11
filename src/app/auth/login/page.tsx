@@ -47,7 +47,7 @@ export default function LoginPage() {
           .eq('user_id', data.user.id)
           .maybeSingle()
         if (!vr) {
-          router.push('/verify')
+          router.push('/onboarding')
         } else {
           router.push('/')
           router.refresh()

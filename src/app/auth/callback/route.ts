@@ -18,7 +18,7 @@ export async function GET(request: Request) {
         .eq('user_id', data.user.id)
         .maybeSingle()
       if (!vr) {
-        return NextResponse.redirect(`${origin}/verify`)
+        return NextResponse.redirect(`${origin}/onboarding`)
       }
       return NextResponse.redirect(`${origin}${next}`)
     }
