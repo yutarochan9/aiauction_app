@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { User } from '@supabase/supabase-js'
 import NotificationBell from './NotificationBell'
 
@@ -11,8 +11,6 @@ export default function Navbar() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const supabase = createClient()
@@ -29,18 +27,7 @@ export default function Navbar() {
     })
   }, [])
 
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [])
-
   const handleLogout = async () => {
-    setDropdownOpen(false)
     await fetch('/auth/logout', { method: 'POST' })
     router.push('/')
     router.refresh()
@@ -59,39 +46,21 @@ export default function Navbar() {
 
           {user ? (
             <>
+              <Link href={`/profile/${user.id}`} className="text-neutral-400 hover:text-white transition-colors text-sm">My Page</Link>
+              <Link href="/settings" className="text-neutral-400 hover:text-white transition-colors text-sm">Settings</Link>
               <NotificationBell user={user} />
-              <div className="relative" ref={dropdownRef}>
-                <button onClick={() => setDropdownOpen(v => !v)} className="focus:outline-none">
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-[#B8902A] flex items-center justify-center text-xs font-bold text-white">
-                      {user.email?.[0]?.toUpperCase()}
-                    </div>
-                  )}
-                </button>
-                {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-44 bg-[#1a1a1a] border border-neutral-700 rounded-xl shadow-lg py-1 z-50">
-                    <Link href={`/profile/${user.id}`} onClick={() => setDropdownOpen(false)}
-                      className="block px-4 py-2 text-sm text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors">
-                      My Page
-                    </Link>
-                    <Link href="/sell" onClick={() => setDropdownOpen(false)}
-                      className="block px-4 py-2 text-sm text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors">
-                      Sell
-                    </Link>
-                    <Link href="/settings" onClick={() => setDropdownOpen(false)}
-                      className="block px-4 py-2 text-sm text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors">
-                      Settings
-                    </Link>
-                    <div className="border-t border-neutral-700 my-1" />
-                    <button onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 text-sm text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors">
-                      Logout
-                    </button>
+              <Link href={`/profile/${user.id}`}>
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="avatar" className="w-8 h-8 rounded-full object-cover" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-[#B8902A] flex items-center justify-center text-xs font-bold text-white">
+                    {user.email?.[0]?.toUpperCase()}
                   </div>
                 )}
-              </div>
+              </Link>
+              <button onClick={handleLogout} className="text-sm text-neutral-400 hover:text-white transition-colors">
+                Logout
+              </button>
             </>
           ) : (
             <Link href="/auth/login"
