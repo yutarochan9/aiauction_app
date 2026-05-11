@@ -10,7 +10,6 @@ type Profile = {
   avatar_url: string
   sns_url: string
   portfolio_url: string
-  roles: string[]
 }
 
 type NotifSettings = {
@@ -37,26 +36,6 @@ const NOTIFICATION_ITEMS = [
   { key: 'follow_listed',    label: 'New listing from followed creator', desc: 'A creator you follow lists a new avatar' },
 ]
 
-const ROLES = [
-  {
-    key: 'identity_holder',
-    label: 'Identity Holder',
-    desc: 'You own the rights to a face, voice, or character and want to license it',
-    icon: '👤',
-  },
-  {
-    key: 'creator',
-    label: 'Creator',
-    desc: 'You use AI tools to build avatars and sell them on behalf of identity holders',
-    icon: '🎨',
-  },
-  {
-    key: 'buyer',
-    label: 'Buyer',
-    desc: 'You want to purchase AI avatar usage rights at auction',
-    icon: '🛒',
-  },
-]
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -74,7 +53,7 @@ export default function SettingsPage() {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
   const [profile, setProfile] = useState<Profile>({
-    display_name: '', bio: '', avatar_url: '', sns_url: '', portfolio_url: '', roles: [],
+    display_name: '', bio: '', avatar_url: '', sns_url: '', portfolio_url: '',
   })
   const [notif, setNotif] = useState<NotifSettings>(DEFAULT_NOTIF)
   const [loading, setLoading] = useState(true)
@@ -91,7 +70,7 @@ export default function SettingsPage() {
         if (!data.user) { router.replace('/auth/login'); return }
         const { data: prof } = await supabase
           .from('users')
-          .select('display_name, bio, avatar_url, sns_url, portfolio_url, roles, identity_verified')
+          .select('display_name, bio, avatar_url, sns_url, portfolio_url, identity_verified')
           .eq('id', data.user.id)
           .single()
         if (prof) {
@@ -101,7 +80,6 @@ export default function SettingsPage() {
             avatar_url: prof.avatar_url ?? '',
             sns_url: prof.sns_url ?? '',
             portfolio_url: prof.portfolio_url ?? '',
-            roles: prof.roles ?? [],
           })
           setAvatarPreview(prof.avatar_url ?? '')
           if ((prof as any).identity_verified) {
@@ -121,14 +99,6 @@ export default function SettingsPage() {
       }),
     ]).finally(() => setLoading(false))
   }, [])
-
-  const toggleRole = (role: string) => {
-    setProfile(p => ({
-      ...p,
-      roles: p.roles.includes(role) ? p.roles.filter(r => r !== role) : [...p.roles, role],
-    }))
-    setStatus('idle')
-  }
 
   const setN = (key: keyof NotifSettings, value: boolean) => {
     setNotif(prev => ({ ...prev, [key]: value }))
@@ -178,8 +148,6 @@ export default function SettingsPage() {
   }
 
   if (loading) return <div className="max-w-2xl mx-auto py-12 text-gray-400 text-sm">Loading...</div>
-
-  const isCreator = profile.roles.includes('creator')
 
   return (
     <div className="max-w-2xl mx-auto space-y-8 pb-16">
@@ -258,114 +226,73 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {/* ロール選択 */}
+      {/* 身元確認 */}
       <section className="bg-white rounded-2xl border border-stone-200 p-6 space-y-4">
-        <div>
-          <h2 className="text-base font-semibold text-gray-900">Your Roles</h2>
-          <p className="text-xs text-gray-400 mt-1">Select all that apply. You can have multiple roles.</p>
-        </div>
-        <div className="space-y-3">
-          {ROLES.map(({ key, label, desc, icon }) => {
-            const active = profile.roles.includes(key)
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => toggleRole(key)}
-                className={`w-full flex items-start gap-4 p-4 rounded-xl border-2 text-left transition-colors ${
-                  active
-                    ? 'border-[#B8902A] bg-amber-50'
-                    : 'border-stone-200 hover:border-stone-300'
-                }`}
-              >
-                <span className="text-2xl shrink-0 mt-0.5">{icon}</span>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <p className={`text-sm font-semibold ${active ? 'text-[#B8902A]' : 'text-gray-900'}`}>{label}</p>
-                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                      active ? 'border-[#B8902A] bg-[#B8902A]' : 'border-stone-300'
-                    }`}>
-                      {active && <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>}
-                    </div>
+        <h2 className="text-base font-semibold text-gray-900">Identity Verification</h2>
+        <div className={`rounded-xl p-4 border ${
+          verificationStatus === 'verified'
+            ? 'bg-green-50 border-green-200'
+            : verificationStatus === 'pending' || verificationStatus === 'in_review'
+            ? 'bg-amber-50 border-amber-200'
+            : verificationStatus === 'rejected'
+            ? 'bg-red-50 border-red-200'
+            : 'bg-stone-50 border-stone-200'
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {verificationStatus === 'verified' ? (
+                <>
+                  <span className="text-green-600 text-lg">✓</span>
+                  <div>
+                    <p className="text-sm font-semibold text-green-800">Identity Verified</p>
+                    <p className="text-xs text-green-600">You can approve avatar creation agreements.</p>
                   </div>
-                  <p className="text-xs text-gray-400 mt-0.5">{desc}</p>
-                </div>
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Identity Holder 身元確認バナー */}
-        {profile.roles.includes('identity_holder') && (
-          <div className={`rounded-xl p-4 border ${
-            verificationStatus === 'verified'
-              ? 'bg-green-50 border-green-200'
-              : verificationStatus === 'pending' || verificationStatus === 'in_review'
-              ? 'bg-amber-50 border-amber-200'
-              : verificationStatus === 'rejected'
-              ? 'bg-red-50 border-red-200'
-              : 'bg-stone-50 border-stone-200'
-          }`}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {verificationStatus === 'verified' ? (
-                  <>
-                    <span className="text-green-600 text-lg">✓</span>
-                    <div>
-                      <p className="text-sm font-semibold text-green-800">Identity Verified</p>
-                      <p className="text-xs text-green-600">You can approve avatar creation agreements.</p>
-                    </div>
-                  </>
-                ) : verificationStatus === 'pending' || verificationStatus === 'in_review' ? (
-                  <>
-                    <span className="text-amber-500 text-lg">⏳</span>
-                    <div>
-                      <p className="text-sm font-semibold text-amber-800">Verification Under Review</p>
-                      <p className="text-xs text-amber-600">We are reviewing your documents. This usually takes 1-2 business days.</p>
-                    </div>
-                  </>
-                ) : verificationStatus === 'rejected' ? (
-                  <>
-                    <span className="text-red-500 text-lg">✗</span>
-                    <div>
-                      <p className="text-sm font-semibold text-red-800">Verification Failed</p>
-                      <p className="text-xs text-red-600">Your documents were not accepted. Please resubmit.</p>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-gray-400 text-lg">🪪</span>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-800">Identity Verification Required</p>
-                      <p className="text-xs text-gray-500">Verify your identity to approve avatar agreements and protect your rights.</p>
-                    </div>
-                  </>
-                )}
-              </div>
-              {verificationStatus !== 'verified' && verificationStatus !== 'pending' && verificationStatus !== 'in_review' && (
-                <a href="/verify" className="shrink-0 text-xs font-semibold bg-[#2C2C2C] hover:bg-[#3C3C3C] text-white px-4 py-2 rounded-lg transition-colors">
-                  Verify Now →
-                </a>
+                </>
+              ) : verificationStatus === 'pending' || verificationStatus === 'in_review' ? (
+                <>
+                  <span className="text-amber-500 text-lg">⏳</span>
+                  <div>
+                    <p className="text-sm font-semibold text-amber-800">Verification Under Review</p>
+                    <p className="text-xs text-amber-600">We are reviewing your documents. This usually takes 1-2 business days.</p>
+                  </div>
+                </>
+              ) : verificationStatus === 'rejected' ? (
+                <>
+                  <span className="text-red-500 text-lg">✗</span>
+                  <div>
+                    <p className="text-sm font-semibold text-red-800">Verification Failed</p>
+                    <p className="text-xs text-red-600">Your documents were not accepted. Please resubmit.</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <span className="text-gray-400 text-lg">🪪</span>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800">Not Verified</p>
+                    <p className="text-xs text-gray-500">Verify your identity to approve avatar agreements and protect your rights.</p>
+                  </div>
+                </>
               )}
             </div>
+            {verificationStatus !== 'verified' && verificationStatus !== 'pending' && verificationStatus !== 'in_review' && (
+              <a href="/verify" className="shrink-0 text-xs font-semibold bg-[#2C2C2C] hover:bg-[#3C3C3C] text-white px-4 py-2 rounded-lg transition-colors">
+                Verify Now →
+              </a>
+            )}
           </div>
-        )}
+        </div>
 
-        {/* クリエイターのポートフォリオURL */}
-        {isCreator && (
-          <div>
-            <label className="block text-xs text-gray-500 mb-1.5">Portfolio URL <span className="text-gray-300">(shown to identity holders when you apply)</span></label>
-            <input
-              type="url"
-              value={profile.portfolio_url}
-              onChange={e => { setProfile(p => ({ ...p, portfolio_url: e.target.value })); setStatus('idle') }}
-              placeholder="https://..."
-              className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:border-[#B8902A]"
-            />
-          </div>
-        )}
+        {/* ポートフォリオURL */}
+        <div>
+          <label className="block text-xs text-gray-500 mb-1.5">Portfolio URL <span className="text-gray-300">(shown to identity holders when you apply as creator)</span></label>
+          <input
+            type="url"
+            value={profile.portfolio_url}
+            onChange={e => { setProfile(p => ({ ...p, portfolio_url: e.target.value })); setStatus('idle') }}
+            placeholder="https://..."
+            className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-gray-900 focus:outline-none focus:border-[#B8902A]"
+          />
+        </div>
       </section>
 
       {/* プッシュ通知設定 */}

@@ -28,7 +28,6 @@ export default function SellPage() {
   const thumbRef = useRef<HTMLInputElement>(null)
   const submittingRef = useRef(false)
 
-  const [myRoles, setMyRoles] = useState<string[]>([])
   const [fileFormat, setFileFormat] = useState('image')
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -61,8 +60,6 @@ export default function SellPage() {
     const supabase = createClient()
     supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) { router.replace('/auth/login'); return }
-      const { data: prof } = await supabase.from('users').select('roles').eq('id', data.user.id).single()
-      setMyRoles(prof?.roles ?? [])
     })
   }, [])
 
@@ -203,8 +200,6 @@ export default function SellPage() {
   }
 
   const selectedFormat = FILE_FORMATS.find(f => f.value === fileFormat)!
-  const isCreator = myRoles.includes('creator')
-
   return (
     <div className="max-w-xl mx-auto py-4">
       <h1 className="text-2xl font-bold text-gray-900 mb-8">List Avatar</h1>

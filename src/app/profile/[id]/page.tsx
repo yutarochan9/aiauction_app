@@ -11,12 +11,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
   const locale = await getLocale()
   const supabase = await createClient()
 
-  const ROLE_LABELS: Record<string, string> = {
-    identity_holder: 'Identity Holder',
-    creator: 'Creator',
-    buyer: 'Buyer',
-  }
-
   // ユーザー情報取得
   const { data: profile } = await supabase
     .from('users')
@@ -93,11 +87,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                   ✓ {t('snsVerified')}
                 </span>
               )}
-              {(profile.roles ?? []).map((role: string) => (
-                <span key={role} className="text-xs bg-stone-100 text-gray-500 px-2 py-0.5 rounded-full">
-                  {ROLE_LABELS[role] ?? role}
-                </span>
-              ))}
             </div>
             {profile.sns_verified && (
               <p className="text-xs text-gray-300 mb-2">{t('snsVerifyBadgeNote')}</p>
@@ -116,7 +105,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                 {profile.sns_url.replace(/^https?:\/\//, '')}
               </a>
             )}
-            {profile.portfolio_url && (profile.roles ?? []).includes('creator') && (
+            {profile.portfolio_url && (
               <a
                 href={profile.portfolio_url}
                 target="_blank"
