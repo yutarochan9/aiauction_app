@@ -65,6 +65,27 @@ async function handleEvent(event: Stripe.Event) {
       return NextResponse.json({ received: true })
     }
 
+    // 作品情報取得（ダウンロードURL生成のため）
+    const { data: artwork } = await supabaseAdmin
+      .from('artworks')
+      .select('title_en, title_ja, original_storage_path, file_format')
+      .eq('id', artwork_id)
+      .single()
+
+    // 落札者固有ID（透かし用）
+    const buyerUniqueId = `${buyer_id}-${artwork_id}-${Date.now()}`
+
+    // 署名付きダウンロードURL生成（72時間有効）
+    let downloadUrl: string | null = null
+    if (artwork?.original_storage_path) {
+      const { data: signedData } = await supabaseAdmin.storage
+        .from('artwork-originals')
+        .createSignedUrl(artwork.original_storage_path, 72 * 3600)
+      downloadUrl = signedData?.signedUrl ?? null
+    }
+
+    const downloadExpiresAt = new Date(Date.now() + 72 * 3600 * 1000).toISOString()
+
     // purchasesレコード作成
     const { error } = await supabaseAdmin
       .from('purchases')
@@ -74,6 +95,9 @@ async function handleEvent(event: Stripe.Event) {
         seller_id: seller_id ?? '',
         amount: amountPaid,
         stripe_payment_id: session.id,
+        buyer_unique_id: buyerUniqueId,
+        download_url: downloadUrl,
+        download_expires_at: downloadExpiresAt,
       })
 
     if (error) {
@@ -81,12 +105,6 @@ async function handleEvent(event: Stripe.Event) {
       return NextResponse.json({ error: 'DB error' }, { status: 500 })
     }
 
-    // 作品タイトル取得してメール送信
-    const { data: artwork } = await supabaseAdmin
-      .from('artworks')
-      .select('title_en, title_ja')
-      .eq('id', artwork_id)
-      .single()
     const title = artwork?.title_en || artwork?.title_ja || 'Artwork'
 
     const [{ data: sellerData }, { data: buyerData }] = await Promise.all([

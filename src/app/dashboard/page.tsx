@@ -42,10 +42,10 @@ export default async function DashboardPage() {
     ? Array.from(new Map(myBids.map((b) => [(b.artworks as any)?.id, b])).values())
     : []
 
-  // 自分の落札作品
+  // 自分の落札作品（ダウンロードURL込み）
   const { data: myPurchases } = await supabase
     .from('purchases')
-    .select('*, artworks(id, title_ja, title_en, image_url, user_id)')
+    .select('*, artworks(id, title_ja, title_en, image_url, user_id, file_format)')
     .eq('buyer_id', user.id)
     .order('created_at', { ascending: false })
 
@@ -222,6 +222,34 @@ export default async function DashboardPage() {
                       </Link>
                     )}
                   </div>
+                  {/* ダウンロードボタン */}
+                  {p.download_url && (
+                    <div className="mt-3 pt-3 border-t border-stone-100">
+                      {new Date(p.download_expires_at) > new Date() ? (
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-xs font-semibold text-gray-700">Your file is ready</p>
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              Expires {new Date(p.download_expires_at).toLocaleString()}
+                            </p>
+                          </div>
+                          <a
+                            href={p.download_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 bg-[#2C2C2C] hover:bg-[#3C3C3C] text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Download
+                          </a>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-red-400">Download link expired. Contact support.</p>
+                      )}
+                    </div>
+                  )}
                   {!alreadyReviewed && artwork?.user_id && (
                     <ReviewForm
                       purchaseId={p.id}

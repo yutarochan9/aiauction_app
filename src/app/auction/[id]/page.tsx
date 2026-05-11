@@ -55,6 +55,13 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
 
   if (!artwork) notFound()
 
+  // 承認待ちのアバターは未ログインユーザーから隠す
+  if (artwork.status === 'pending_approval') {
+    const { data: { user: viewer } } = await supabase.auth.getUser()
+    const isRelated = viewer && (viewer.id === artwork.creator_id || viewer.id === artwork.identity_holder_id)
+    if (!isRelated) notFound()
+  }
+
   // 予定時間を過ぎたscheduledオークションを自動でactiveに
   if (artwork.status === 'scheduled' && new Date(artwork.start_at) <= new Date()) {
     await supabase.from('artworks').update({ status: 'active' }).eq('id', id)
@@ -136,23 +143,85 @@ export default async function AuctionPage({ params }: { params: Promise<{ id: st
       </Link>
 
       <div className="grid md:grid-cols-2 gap-10">
-        {/* 左：画像 */}
+        {/* 左：メディア */}
         <div>
           <div className="rounded-2xl overflow-hidden bg-white border border-stone-200 relative">
-            {artwork.image_url ? (
-              <img
-                src={artwork.image_url}
-                alt={title}
-                className="w-full object-contain pointer-events-none select-none"
-                draggable={false}
-              />
+            {artwork.file_format === 'video' ? (
+              <div className="relative aspect-square bg-black flex items-center justify-center">
+                {artwork.image_url && (
+                  <video
+                    src={isBuyer || isSeller ? undefined : undefined}
+                    poster={artwork.image_url}
+                    controls={isBuyer || isSeller}
+                    className="w-full h-full object-contain"
+                    controlsList="nodownload"
+                    onContextMenu={e => e.preventDefault()}
+                  >
+                    Your browser does not support video.
+                  </video>
+                )}
+                {!isBuyer && !isSeller && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                    <div className="text-center text-white">
+                      <p className="text-4xl mb-2">🎬</p>
+                      <p className="text-sm font-semibold">Video Preview</p>
+                      <p className="text-xs text-white/60 mt-1">Full video unlocked after purchase</p>
+                    </div>
+                  </div>
+                )}
+                {!isBuyer && !isSeller && <WatermarkOverlay dense />}
+              </div>
+            ) : artwork.file_format === 'audio' ? (
+              <div className="aspect-square flex flex-col items-center justify-center bg-gradient-to-b from-stone-900 to-stone-800 p-8">
+                <div className="w-24 h-24 rounded-full bg-stone-700 flex items-center justify-center mb-6">
+                  {artwork.image_url
+                    ? <img src={artwork.image_url} alt="" className="w-full h-full object-cover rounded-full" />
+                    : <span className="text-4xl">🎵</span>
+                  }
+                </div>
+                <p className="text-white font-semibold text-center mb-4">{title}</p>
+                {isBuyer || isSeller ? (
+                  <p className="text-xs text-stone-400">Full audio available for download after purchase</p>
+                ) : (
+                  <div className="text-center">
+                    <p className="text-xs text-stone-400 mb-3">30-second preview</p>
+                    <audio controls controlsList="nodownload" className="w-full max-w-xs">
+                      <source src={artwork.image_url ?? ''} />
+                    </audio>
+                    <p className="text-xs text-stone-500 mt-2">Full audio unlocked after purchase</p>
+                  </div>
+                )}
+              </div>
+            ) : artwork.file_format === '3d' ? (
+              <div className="aspect-square flex flex-col items-center justify-center bg-stone-100 gap-4">
+                {artwork.image_url && (
+                  <img src={artwork.image_url} alt={title} className="w-full h-full object-contain pointer-events-none select-none" draggable={false} />
+                )}
+                <div className="absolute bottom-4 left-0 right-0 text-center">
+                  <span className="text-xs bg-black/60 text-white px-3 py-1 rounded-full">🧊 3D Model</span>
+                </div>
+                {!isBuyer && !isSeller && <WatermarkOverlay dense />}
+              </div>
             ) : (
-              <div className="aspect-square flex items-center justify-center text-gray-300">No Image</div>
+              // 通常画像
+              <>
+                {artwork.image_url ? (
+                  <img
+                    src={artwork.image_url}
+                    alt={title}
+                    className="w-full object-contain pointer-events-none select-none"
+                    draggable={false}
+                  />
+                ) : (
+                  <div className="aspect-square flex items-center justify-center text-gray-300">No Image</div>
+                )}
+                {!isBuyer && !isSeller && <WatermarkOverlay dense />}
+              </>
             )}
-            {!isBuyer && !isSeller && <WatermarkOverlay dense />}
           </div>
-          {/* 保護の案内 */}
-          {!isBuyer && !isSeller && <p className="text-xs text-gray-300 mt-3 text-center">{t('protectedNotice')}</p>}
+          {!isBuyer && !isSeller && artwork.file_format === 'image' && (
+            <p className="text-xs text-gray-300 mt-3 text-center">{t('protectedNotice')}</p>
+          )}
         </div>
 
         {/* 右：情報・入札 */}
