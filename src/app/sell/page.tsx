@@ -431,7 +431,7 @@ export default function SellPage() {
         {/* 価格・期間 */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Starting Price (USD)</label>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Start Price (USD)</label>
             <div className="relative">
               <span className="absolute left-4 top-3.5 text-gray-400 text-sm">$</span>
               <input
